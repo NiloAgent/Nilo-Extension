@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Token Analyzer - UI Redesign Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Copy the redesigned CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 420px;
+            min-height: 600px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
+            margin: 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 1px solid rgba(255, 153, 0, 0.2);
+            padding-bottom: 16px;
+            background: linear-gradient(90deg, rgba(255, 153, 0, 0.05) 0%, transparent 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin: -4px -4px 0 -4px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.2) 0%, rgba(255, 184, 77, 0.1) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 153, 0, 0.3);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        /* Search Section */
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .search-header {
+            text-align: center;
+        }
+
+        .search-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .search-description {
+            font-size: 13px;
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #6b7280;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .mint-input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            background: rgba(31, 41, 55, 0.8);
+            border: 1.5px solid rgba(55, 65, 81, 0.8);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 400;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .mint-input:focus {
+            border-color: #ff9900;
+            background: rgba(31, 41, 55, 0.95);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        }
+
+        .analyze-btn {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #ff9900 0%, #e68a00 100%);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyze-btn:hover {
+            background: linear-gradient(135deg, #e68a00 0%, #cc7700 100%);
+            box-shadow: 0 6px 20px rgba(255, 153, 0, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Card Base Styles */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-title svg {
+            color: #ff9900;
+        }
+
+        /* Trust Score Card */
+        .trust-score-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px solid rgba(55, 65, 81, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trust-score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff9900, #ffb84d, #ff9900);
+            opacity: 0.6;
+        }
+
+        .trust-score-display {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .trust-score-main {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .trust-score-value {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .trust-score-max {
+            font-size: 20px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .trust-score-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .trust-score-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+            width: 0%;
+        }
+
+        .risk-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+
+        .risk-badge.medium {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        .trust-summary {
+            font-size: 13px;
+            color: #d1d5db;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        /* Token Info Card */
+        .token-info-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px solid rgba(55, 65, 81, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .token-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(55, 65, 81, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(55, 65, 81, 0.3);
+        }
+
+        .token-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 153, 0, 0.3);
+            background: linear-gradient(135deg, #ff9900, #ffb84d);
+        }
+
+        .token-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .token-symbol {
+            font-size: 13px;
+            color: #9ca3af;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-weight: 500;
+            background: rgba(55, 65, 81, 0.4);
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .token-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(55, 65, 81, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(55, 65, 81, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(55, 65, 81, 0.3);
+            border-color: rgba(255, 153, 0, 0.3);
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 153, 0, 0.1);
+            border-radius: 8px;
+            color: #ff9900;
+            flex-shrink: 0;
+        }
+
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        /* Authority Card */
+        .authority-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px solid rgba(55, 65, 81, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .authority-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .authority-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(55, 65, 81, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(55, 65, 81, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .authority-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(107, 114, 128, 0.1);
+            border-radius: 8px;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+
+        .authority-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .authority-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .authority-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .authority-status.safe {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #ff9900 0%, #e68a00 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(55, 65, 81, 0.6);
+            color: #d1d5db;
+            border: 1px solid rgba(55, 65, 81, 0.8);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .demo-note {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid rgba(255, 153, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: #ff9900;
+            font-size: 12px;
+            font-weight: 500;
+            max-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-note">
+        🎨 UI Redesign Demo<br>
+        Modern, clean design with enhanced visual hierarchy
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ff9900"/>
+                                <stop offset="100%" style="stop-color:#ffb84d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>Solana Token Analyzer</h1>
+                    <div class="logo-subtitle">Security & Risk Assessment</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-header">
+                <h2>Token Analysis</h2>
+                <div class="search-description">Enter a Solana mint address to analyze</div>
+            </div>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="mintAddress" 
+                        placeholder="AdvRrfcUTQBjfwCkD7mQGKev4KaLjm38CRGgy6nVpump"
+                        class="mint-input"
+                        value="AdvRrfcUTQBjfwCkD7mQGKev4KaLjm38CRGgy6nVpump"
+                    >
+                </div>
+                <button class="analyze-btn" onclick="animateDemo()">
+                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="btn-text">Analyze</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <!-- Trust Score -->
+            <div class="trust-score-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22S2 16 2 9C2 7 4 5 6 5C8 5 10 6 12 8C14 6 16 5 18 5C20 5 22 7 22 9C22 16 12 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Trust Score
+                    </div>
+                    <div class="risk-badge medium">MEDIUM</div>
+                </div>
+                <div class="trust-score-display">
+                    <div class="trust-score-main">
+                        <div class="trust-score-value">67</div>
+                        <div class="trust-score-max">/100</div>
+                    </div>
+                    <div class="trust-score-bar">
+                        <div class="trust-score-progress" style="width: 67%;"></div>
+                    </div>
+                </div>
+                <div class="trust-summary">
+                    Medium risk token. Do your own research before investing.
+                </div>
+            </div>
+
+            <!-- Token Info -->
+            <div class="token-info-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Token Information
+                    </div>
+                </div>
+                <div class="token-header">
+                    <div class="token-image"></div>
+                    <div class="token-details">
+                        <div class="token-name">Sample Token</div>
+                        <div class="token-symbol">SAMPLE</div>
+                    </div>
+                </div>
+                <div class="token-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6312 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6312 13.6815 18 14.5717 18 15.5C18 16.4283 17.6312 17.3185 16.9749 17.9749C16.3185 18.6312 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Supply</div>
+                            <div class="stat-value">1B</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Holders</div>
+                            <div class="stat-value">1,247</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authority Status -->
+            <div class="authority-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Authority Status
+                    </div>
+                </div>
+                <div class="authority-grid">
+                    <div class="authority-item">
+                        <div class="authority-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="authority-content">
+                            <div class="authority-label">Mint Authority</div>
+                            <div class="authority-status safe">Revoked</div>
+                        </div>
+                    </div>
+                    <div class="authority-item">
+                        <div class="authority-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V18C20 18.5304 19.7893 19.0391 19.4142 19.4142C19.0391 19.7893 18.5304 20 18 20H6C5.46957 20 4.96086 19.7893 4.58579 19.4142C4.21071 19.0391 4 18.5304 4 18V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8M16 4C16 3.46957 15.7893 2.96086 15.4142 2.58579C15.0391 2.21071 14.5304 2 14 2H10C9.46957 2 8.96086 2.21071 8.58579 2.58579C8.21071 2.96086 8 3.46957 8 4M16 4C16 4.53043 15.7893 5.03914 15.4142 5.41421C15.0391 5.78929 14.5304 6 14 6H10C9.46957 6 8.96086 5.78929 8.58579 5.41421C8.21071 5.03914 8 4.53043 8 4M12 12V16M10 14H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="authority-content">
+                            <div class="authority-label">Freeze Authority</div>
+                            <div class="authority-status safe">Revoked</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button class="action-btn secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    View on Solscan
+                </button>
+                <button class="action-btn primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Analyze Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function animateDemo() {
+            // Animate the progress bar
+            const progressBar = document.querySelector('.trust-score-progress');
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = '67%';
+            }, 100);
+            
+            // Add some visual feedback
+            const btn = document.querySelector('.analyze-btn');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        // Auto-animate on load
+        window.addEventListener('load', () => {
+            setTimeout(animateDemo, 500);
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,84 @@
+{
+  "name": "solana-token-analyzer",
+  "version": "1.0.0",
+  "description": "A modern Chrome extension for analyzing Solana tokens with real-time security assessment and risk evaluation",
+  "main": "extension/popup.js",
+  "scripts": {
+    "build": "node scripts/build-extension.js",
+    "dev": "npm run build && npm run watch",
+    "watch": "node scripts/build-extension.js --watch",
+    "test": "node test-extension.js",
+    "test:tokens": "node test-api.js",
+    "lint": "eslint extension/**/*.js",
+    "format": "prettier --write extension/**/*.{js,html,css}",
+    "clean": "rimraf dist/*",
+    "package": "npm run build && npm run zip",
+    "zip": "cd dist && zip -r ../solana-token-analyzer-v1.0.0.zip .",
+    "validate": "node scripts/validate-extension.js",
+    "release": "npm run clean && npm run build && npm run validate && npm run package"
+  },
+  "keywords": [
+    "solana",
+    "cryptocurrency",
+    "blockchain",
+    "token-analysis",
+    "chrome-extension",
+    "bitquery",
+    "defi",
+    "memecoin",
+    "security",
+    "risk-assessment",
+    "web3",
+    "dapp"
+  ],
+  "author": {
+    "name": "Solana Token Analyzer Team",
+    "email": "contact@example.com",
+    "url": "https://github.com/yourusername"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/solana-token-analyzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/solana-token-analyzer/issues"
+  },
+  "homepage": "https://github.com/yourusername/solana-token-analyzer#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "files": [
+    "extension/",
+    "dist/",
+    "scripts/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "chrome-extension": {
+    "manifest_version": 3,
+    "minimum_chrome_version": "88"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/yourusername"
+  }
+}

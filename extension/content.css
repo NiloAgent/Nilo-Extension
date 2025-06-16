@@ -1,0 +1,350 @@
+/* Solana Token Analyzer Content Script Styles */
+
+/* Analysis button styles */
+.solana-analyzer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  margin-left: 4px;
+  background: #ff9900;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  vertical-align: middle;
+  z-index: 1000;
+  position: relative;
+}
+
+.solana-analyzer-btn:hover {
+  background: #e68a00;
+  transform: translateY(-1px);
+}
+
+.solana-analyzer-btn svg {
+  width: 10px;
+  height: 10px;
+  stroke: currentColor;
+}
+
+/* Address wrapper */
+.solana-address-wrapper {
+  position: relative;
+  display: inline;
+}
+
+.solana-address {
+  font-family: 'Courier New', monospace;
+  background: rgba(255, 153, 0, 0.1);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* Modal styles */
+.solana-analyzer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.solana-analyzer-modal {
+  background: #1f2937;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #374151;
+}
+
+.solana-analyzer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #374151;
+}
+
+.solana-analyzer-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.solana-analyzer-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.solana-analyzer-close:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.solana-analyzer-content {
+  padding: 20px;
+  color: #ffffff;
+}
+
+/* Trust score display */
+.solana-analyzer-score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 153, 0, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+.score-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  border: 3px solid;
+}
+
+.score-circle.low {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.score-circle.medium {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.score-circle.high {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.score-info {
+  flex: 1;
+}
+
+.score-title {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.score-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Details section */
+.solana-analyzer-details {
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #374151;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 13px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.detail-value.safe {
+  color: #4ade80;
+}
+
+.detail-value.danger {
+  color: #ef4444;
+}
+
+/* Risk factors */
+.solana-analyzer-risks {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.risks-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444;
+  margin-bottom: 8px;
+}
+
+.risk-item {
+  font-size: 12px;
+  color: #fca5a5;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.risk-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Action buttons */
+.solana-analyzer-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.primary {
+  background: #ff9900;
+  color: #ffffff;
+}
+
+.action-btn.primary:hover {
+  background: #e68a00;
+}
+
+.action-btn.secondary {
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid #374151;
+}
+
+.action-btn.secondary:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+/* Toast notifications */
+.solana-analyzer-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10001;
+  animation: slideIn 0.3s ease-out;
+}
+
+.solana-analyzer-toast.error {
+  background: #ef4444;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .solana-analyzer-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .solana-analyzer-content {
+    padding: 16px;
+  }
+  
+  .solana-analyzer-score {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .score-circle {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+  
+  .solana-analyzer-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+  .solana-analyzer-modal {
+    background: #111827;
+    border-color: #1f2937;
+  }
+  
+  .solana-analyzer-header {
+    border-color: #1f2937;
+  }
+  
+  .detail-item {
+    border-color: #1f2937;
+  }
+} 

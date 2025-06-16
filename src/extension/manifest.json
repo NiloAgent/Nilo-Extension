@@ -1,0 +1,80 @@
+{
+  "manifest_version": 3,
+  "name": "Nilo - Solana Security",
+  "version": "1.0.0",
+  "description": "Solana-only security analysis for wallets, transactions, and DeFi interactions",
+  
+  "permissions": [
+    "storage",
+    "activeTab",
+    "notifications"
+  ],
+  
+  "host_permissions": [
+    "https://solscan.io/*",
+    "https://solana.fm/*",
+    "https://explorer.solana.com/*",
+    "https://jup.ag/*",
+    "https://raydium.io/*",
+    "https://orca.so/*",
+    "https://magiceden.io/*",
+    "https://tensor.trade/*",
+    "https://dexscreener.com/*",
+    "https://birdeye.so/*",
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://github.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "https://solscan.io/*",
+        "https://solana.fm/*",
+        "https://explorer.solana.com/*",
+        "https://jup.ag/*",
+        "https://raydium.io/*",
+        "https://orca.so/*",
+        "https://magiceden.io/*",
+        "https://tensor.trade/*",
+        "https://dexscreener.com/*",
+        "https://birdeye.so/*",
+        "https://twitter.com/*",
+        "https://x.com/*",
+        "https://github.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Nilo - Solana Security",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["icon-*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+} 
