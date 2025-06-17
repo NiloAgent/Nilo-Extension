@@ -33,16 +33,6 @@ A modern Chrome extension for analyzing Solana tokens with real-time security as
 - **Error handling** with graceful fallbacks
 - **Real-time updates** without page refresh
 
-## 📸 Screenshots
-
-### Main Interface
-![Main Interface](docs/screenshots/main-interface.png)
-
-### Token Analysis Results
-![Analysis Results](docs/screenshots/analysis-results.png)
-
-### Risk Assessment
-![Risk Assessment](docs/screenshots/risk-assessment.png)
 
 ## 🚀 Installation
 
