@@ -60,6 +60,9 @@ setTimeout(() => {
   }
 }, 100);
 
+// Global variable to store current mint address for Solscan link
+let currentMintAddress = '';
+
 // Utility Functions
 function validateSolanaAddress(address) {
   const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -430,8 +433,26 @@ const TEST_TOKEN = 'GjJas46PiGVN9WwJ3NYori5qxUdwEvrg9i5hsi3spump';
 async function getTopHolders(mintAddress) {
   console.log(`🔍 Getting top holders for: ${mintAddress}`);
   
-  // Use BalanceUpdates with aggregation to get current balances
-  const query = `
+  // First, try to get the total holder count with a separate query
+  const countQuery = `
+    query GetHolderCount($mintAddress: String!) {
+      Solana(aggregates: only) {
+        BalanceUpdates(
+          where: {
+            BalanceUpdate: {
+              Currency: {MintAddress: {is: $mintAddress}}
+              PostBalance: {gt: "0"}
+            }
+          }
+        ) {
+          count(uniq: BalanceUpdate_Account_Address)
+        }
+      }
+    }
+  `;
+  
+  // Then get the top holders for analysis
+  const holdersQuery = `
     query GetTopHolders($mintAddress: String!, $limit: Int!) {
       Solana(aggregates: only) {
         BalanceUpdates(
@@ -461,17 +482,29 @@ async function getTopHolders(mintAddress) {
   `;
   
   try {
-    console.log(`   📊 Fetching top holders with BalanceUpdates...`);
+    // Try to get total holder count first
+    let totalHolderCount = 0;
+    try {
+      console.log(`   📊 Fetching total holder count...`);
+      const countResult = await makeBitqueryRequest(countQuery, { mintAddress });
+      totalHolderCount = countResult?.Solana?.BalanceUpdates?.[0]?.count || 0;
+      console.log(`   📊 Total holders found: ${totalHolderCount}`);
+    } catch (countError) {
+      console.warn('⚠️ Count query failed, will use analysis holders count as fallback:', countError);
+    }
+    
+    // Now get top holders for analysis
+    console.log(`   📊 Fetching top holders for analysis...`);
     
     const variables = { 
       mintAddress, 
-      limit: 100  // Get more holders for better analysis
+      limit: 500  // Increased limit to get better analysis and fallback count
     };
     
-    const result = await makeBitqueryRequest(query, variables);
+    const result = await makeBitqueryRequest(holdersQuery, variables);
     const updates = result?.Solana?.BalanceUpdates || [];
     
-    console.log(`   Found ${updates.length} balance updates`);
+    console.log(`   Found ${updates.length} balance updates for analysis`);
     
     if (updates.length === 0) {
       console.log('❌ No balance updates found');
@@ -510,7 +543,12 @@ async function getTopHolders(mintAddress) {
     // Sort by balance descending
     finalHolders.sort((a, b) => b.balance - a.balance);
     
-    console.log(`✅ Found ${finalHolders.length} unique current holders`);
+    console.log(`✅ Found ${finalHolders.length} unique current holders for analysis`);
+    
+    // Use count query result if available, otherwise use analysis holders count
+    const actualTotalHolders = totalHolderCount > 0 ? totalHolderCount : finalHolders.length;
+    
+    console.log(`✅ Total holder count: ${actualTotalHolders} (${totalHolderCount > 0 ? 'from count query' : 'from analysis fallback'})`);
     
     // Get actual total supply from RPC
     let actualTotalSupply = null;
@@ -536,7 +574,8 @@ async function getTopHolders(mintAddress) {
     const holderBalanceSum = finalHolders.reduce((sum, holder) => sum + holder.balance, 0);
     const totalSupply = actualTotalSupply || holderBalanceSum;
     
-    console.log(`   • Total holders: ${finalHolders.length}`);
+    console.log(`   • Total holders: ${actualTotalHolders}`);
+    console.log(`   • Analysis holders: ${finalHolders.length}`);
     console.log(`   • Actual total supply (RPC): ${actualTotalSupply || 'N/A'}`);
     console.log(`   • Holder balance sum: ${holderBalanceSum}`);
     console.log(`   • Using total supply: ${totalSupply}`);
@@ -545,7 +584,7 @@ async function getTopHolders(mintAddress) {
 
     return {
       holders: finalHolders,
-      totalHolders: finalHolders.length,
+      totalHolders: actualTotalHolders,  // Use the accurate total count or fallback
       totalSupply,
       decimals: tokenMetadata?.decimals || 9,
       tokenMetadata
@@ -553,7 +592,20 @@ async function getTopHolders(mintAddress) {
     
   } catch (error) {
     console.error('❌ Error fetching current holders:', error);
-    throw error;
+    
+    // Return minimal fallback data instead of throwing
+    console.warn('⚠️ Returning fallback holder data due to API error');
+    return {
+      holders: [],
+      totalHolders: 0,
+      totalSupply: 1000000000, // 1B fallback
+      decimals: 9,
+      tokenMetadata: {
+        name: 'Unknown',
+        symbol: 'Unknown',
+        decimals: 9
+      }
+    };
   }
 }
 
@@ -732,18 +784,7 @@ function updateTrustScore(analysis, status) {
   
   // Safe element access for trust score updates
   if (elements.trustScore) {
-    elements.trustScore.textContent = `${trustScore}`;
-  }
-  
-  // Animate the progress bar
-  const progressBar = document.getElementById('trustScoreProgress');
-  if (progressBar) {
-    // Reset width first
-    progressBar.style.width = '0%';
-    // Animate to target width after a short delay
-    setTimeout(() => {
-      progressBar.style.width = `${trustScore}%`;
-    }, 100);
+    elements.trustScore.textContent = `${trustScore}%`;
   }
   
   if (elements.riskBadge) {
@@ -797,7 +838,7 @@ function updateTrustScore(analysis, status) {
     }
     if (elements.riskFactorsList) {
       elements.riskFactorsList.innerHTML = analysis.riskAnalysis.factors
-        .map(factor => `<div class="risk-factor">${factor}</div>`)
+        .map(factor => `<li class="flex items-center gap-2"><span class="text-red-500">•</span>${factor}</li>`)
         .join('');
     }
   } else {
@@ -831,6 +872,8 @@ async function updateTokenInfo(mintAddress) {
     safeUpdateElement('tokenSymbol', 'Loading...');
     safeUpdateElement('tokenSupply', 'Loading...');
     safeUpdateElement('holderCount', 'Loading...');
+    safeUpdateElement('mintAuthority', 'Loading...');
+    safeUpdateElement('freezeAuthority', 'Loading...');
     
     // Get live holder data first (includes token metadata)
     const holderData = await getTopHolders(mintAddress);
@@ -844,8 +887,8 @@ async function updateTokenInfo(mintAddress) {
     } catch (error) {
       console.warn('⚠️ RPC token info failed, using metadata from BalanceUpdates');
       tokenInfo = {
-        name: holderData.tokenMetadata?.name || 'Unknown',
-        symbol: holderData.tokenMetadata?.symbol || 'Unknown',
+        name: holderData.tokenMetadata?.name || 'Unknown Token',
+        symbol: holderData.tokenMetadata?.symbol || 'UNKNOWN',
         decimals: holderData.tokenMetadata?.decimals || 9,
         supply: 'Unknown',
         hasUpdateAuthority: false,
@@ -871,23 +914,45 @@ async function updateTokenInfo(mintAddress) {
     holderData.decimals = tokenInfo.decimals;
     
     // Update UI with live data
-    safeUpdateElement('tokenName', tokenInfo.name);
-    safeUpdateElement('tokenSymbol', tokenInfo.symbol);
+    safeUpdateElement('tokenName', tokenInfo.name || 'Unknown Token');
+    safeUpdateElement('tokenSymbol', tokenInfo.symbol || 'UNKNOWN');
     
-    // SIMPLIFIED SUPPLY - Most tokens are 1 billion, so just show that
-    console.log(`🔧 SIMPLIFIED SUPPLY - Setting to 1B`);
-    safeUpdateElement('tokenSupply', '1B');
-    console.log(`🔧 tokenSupply updated to: 1B`);
+    // Use actual supply if available, otherwise fallback to 1B
+    if (tokenInfo.supply && tokenInfo.supply !== 'Unknown') {
+      try {
+        const formattedSupply = formatSupply(tokenInfo.supply, tokenInfo.decimals);
+        safeUpdateElement('tokenSupply', formattedSupply);
+      } catch (supplyError) {
+        console.warn('⚠️ Supply formatting failed, using 1B fallback');
+        safeUpdateElement('tokenSupply', '1B');
+      }
+    } else {
+      safeUpdateElement('tokenSupply', '1B');
+    }
     
-    // Show exact holder count from live data
-    safeUpdateElement('holderCount', `${holderData.totalHolders}`);
+    // Show holder count from live data
+    safeUpdateElement('holderCount', holderData.totalHolders > 0 ? `${holderData.totalHolders}` : 'Unknown');
     
     // Calculate risk score using live holder data with correct decimals
-    const riskData = calculateRiskScore(holderData, tokenInfo);
+    let riskData;
+    try {
+      riskData = calculateRiskScore(holderData, tokenInfo);
+    } catch (riskError) {
+      console.warn('⚠️ Risk calculation failed, using default values');
+      riskData = {
+        score: 50,
+        factors: ['Unable to calculate risk factors due to data limitations']
+      };
+    }
     
-    // Update mint authority status
-    safeUpdateElement('mintAuthority', tokenInfo.hasUpdateAuthority ? 'Active' : 'Revoked');
-    safeUpdateElement('freezeAuthority', tokenInfo.hasFreezeAuthority ? 'Active' : 'Revoked');
+    // Update mint authority status with better handling
+    const mintAuth = tokenInfo.hasUpdateAuthority !== undefined ? 
+      (tokenInfo.hasUpdateAuthority ? 'Active' : 'Revoked') : 'Unknown';
+    const freezeAuth = tokenInfo.hasFreezeAuthority !== undefined ? 
+      (tokenInfo.hasFreezeAuthority ? 'Active' : 'Revoked') : 'Unknown';
+    
+    safeUpdateElement('mintAuthority', mintAuth);
+    safeUpdateElement('freezeAuthority', freezeAuth);
     
     // Update token image if available
     const tokenImage = document.getElementById('tokenImage');
@@ -911,7 +976,6 @@ async function updateTokenInfo(mintAddress) {
     console.log(`   • Symbol: ${tokenInfo.symbol}`);
     console.log(`   • Decimals: ${tokenInfo.decimals}`);
     console.log(`   • Live Holders: ${holderData.totalHolders}`);
-    console.log(`   • Live Supply: 1B`);
     console.log(`   • Risk Score: ${riskData.score}/100`);
     
     // Validate against known test token
@@ -933,13 +997,26 @@ async function updateTokenInfo(mintAddress) {
   } catch (error) {
     console.error('❌ Error updating token info:', error);
     
-    // Show error state - using safe updates
-    safeUpdateElement('tokenName', 'Error loading');
-    safeUpdateElement('tokenSymbol', 'Error');
-    safeUpdateElement('tokenSupply', 'Error');
-    safeUpdateElement('holderCount', 'Error');
-    safeUpdateElement('mintAuthority', 'Error');
-    safeUpdateElement('freezeAuthority', 'Error');
+    // Show graceful fallback state instead of just "Error"
+    safeUpdateElement('tokenName', 'Unknown Token');
+    safeUpdateElement('tokenSymbol', 'UNKNOWN');
+    safeUpdateElement('tokenSupply', '1B');
+    safeUpdateElement('holderCount', 'Unknown');
+    safeUpdateElement('mintAuthority', 'Unknown');
+    safeUpdateElement('freezeAuthority', 'Unknown');
+    
+    // Show a basic trust score even on error
+    const fallbackAnalysis = {
+      riskAnalysis: {
+        score: 50,
+        level: 'MEDIUM',
+        factors: ['Unable to analyze token due to data limitations']
+      }
+    };
+    updateTrustScore(fallbackAnalysis, 'error');
+    
+    // Show error message to user
+    showError('Unable to analyze token. Please check the address and try again.');
   }
 }
 
@@ -1068,13 +1145,13 @@ async function analyzeTokenMain() {
   try {
     console.log(`🔍 Analyzing token: ${mintAddress}`);
     
+    // Store the current mint address for the Solscan button
+    currentMintAddress = mintAddress;
+    
     // Use the new simplified analysis approach
     await updateTokenInfo(mintAddress);
     
     console.log('✅ Analysis complete');
-    
-    // Update Solscan link
-    elements.viewOnSolscan.href = `https://solscan.io/token/${mintAddress}`;
     
     showResults();
     
@@ -1101,15 +1178,12 @@ elements.analyzeAnother.addEventListener('click', () => {
   elements.mintAddress.focus();
 });
 
-// View on Solscan button functionality
-elements.viewOnSolscan.addEventListener('click', (e) => {
-  e.preventDefault();
-  const href = elements.viewOnSolscan.href;
-  if (href && href !== '#') {
-    console.log(`🔗 Opening Solscan: ${href}`);
-    chrome.tabs.create({ url: href });
-  } else {
-    console.warn('⚠️ No Solscan URL available');
+// Add click handler for View on Solscan button
+elements.viewOnSolscan.addEventListener('click', () => {
+  if (currentMintAddress) {
+    const url = `https://solscan.io/token/${currentMintAddress}`;
+    console.log(`🔗 Opening Solscan URL: ${url}`);
+    chrome.tabs.create({ url: url });
   }
 });
 

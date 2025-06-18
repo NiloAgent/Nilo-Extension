@@ -1,246 +1,218 @@
-# 🛡️ Solana Token Analyzer
+# Solana Token Analyzer
 
-A modern Chrome extension for analyzing Solana tokens with real-time security assessment, holder distribution analysis, and risk evaluation.
+A comprehensive Solana token analysis tool built with Next.js 15, TypeScript, and the Helius RPC API. This application provides detailed analysis of Solana token contracts to help users identify potential risks and make informed decisions about memecoins and other tokens.
 
-![Solana Token Analyzer](https://img.shields.io/badge/Solana-Token%20Analyzer-orange?style=for-the-badge&logo=solana)
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+## 🚀 Features
 
-## ✨ Features
+### Token Analysis
+- **Metadata Analysis**: Token name, symbol, description, image, and metadata source validation
+- **Authority Risk Assessment**: Mint authority, freeze authority, and update authority status
+- **Holder Distribution**: Top 10 holders analysis with concentration risk assessment
+- **Creator Audit**: Transaction history analysis of token creators
+- **Trust Score**: 0-100 scoring system based on multiple risk factors
 
-### 🔍 **Real-Time Token Analysis**
-- **Live holder distribution** analysis using Bitquery GraphQL API
-- **Accurate holder counts** with intelligent filtering
-- **Top holder concentration** metrics (top 1, top 10)
-- **Token metadata** resolution from multiple sources
+### Real-time Data
+- **Helius RPC API Integration**: Real-time data from Solana mainnet
+- **Token Metadata**: On-chain and off-chain metadata retrieval
+- **Holder Information**: Current token distribution and concentration
+- **Transaction History**: Creator wallet activity analysis
 
-### 🛡️ **Security Assessment**
-- **Trust score calculation** (0-100) based on multiple risk factors
-- **Authority status** checking (mint/freeze authority)
-- **Risk factor detection** with detailed explanations
-- **Visual risk indicators** with color-coded badges
+### User Interface
+- **Dark Theme**: Modern dark UI with orange accent colors
+- **Responsive Design**: Works on desktop and mobile devices
+- **Interactive Components**: Tooltips, progress bars, and detailed breakdowns
+- **Real-time Validation**: Input validation with helpful error messages
 
-### 🎨 **Modern UI/UX**
-- **Clean, professional interface** with web3-native design
-- **Animated trust score** with progress bar visualization
-- **Card-based layout** with smooth hover effects
-- **Responsive design** optimized for extension popup
-- **Inter font** for enhanced readability
+## 🛠️ Technology Stack
 
-### 🚀 **Performance**
-- **Fast analysis** with optimized API calls
-- **Intelligent caching** for better performance
-- **Error handling** with graceful fallbacks
-- **Real-time updates** without page refresh
+- **Frontend**: Next.js 15 with App Router
+- **Language**: TypeScript with strict type checking
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Icons**: Lucide React
+- **Validation**: Zod schemas for API responses
+- **API**: Helius RPC and REST APIs
 
-## 📸 Screenshots
+## 📋 Prerequisites
 
-### Main Interface
-![Main Interface](docs/screenshots/main-interface.png)
+- Node.js 18+ 
+- npm or yarn
+- Helius API key (included in the project)
 
-### Token Analysis Results
-![Analysis Results](docs/screenshots/analysis-results.png)
+## 🚀 Getting Started
 
-### Risk Assessment
-![Risk Assessment](docs/screenshots/risk-assessment.png)
-
-## 🚀 Installation
-
-### Option 1: Install from Chrome Web Store (Coming Soon)
-1. Visit the [Chrome Web Store page](#)
-2. Click "Add to Chrome"
-3. Confirm installation
-
-### Option 2: Manual Installation (Developer Mode)
-1. **Download the extension**:
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/solana-token-analyzer.git
-   cd solana-token-analyzer
+   git clone <repository-url>
+   cd nilo
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Build the extension**:
-   ```bash
-   npm run build
-   ```
-
-4. **Load in Chrome**:
-   - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode" (top right toggle)
-   - Click "Load unpacked"
-   - Select the `dist/` folder from the project
-
-## 🔧 Development Setup
-
-### Prerequisites
-- Node.js 16+ and npm
-- Chrome browser
-- Git
-
-### Local Development
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/solana-token-analyzer.git
-   cd solana-token-analyzer
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
-
-4. **Start development**:
+3. **Start the development server**
    ```bash
    npm run dev
    ```
 
-5. **Build for production**:
-   ```bash
-   npm run build
-   ```
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
 
-### Project Structure
+## 🔍 How to Use
+
+1. **Enter a Solana Token Address**
+   - Paste a valid Solana mint address (32-44 base58 characters)
+   - Examples: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` (USDC)
+
+2. **Click "Analyze Token"**
+   - The system will fetch data from multiple Helius API endpoints
+   - Analysis typically takes 2-5 seconds
+
+3. **Review the Results**
+   - **Trust Score**: Overall risk assessment (0-100)
+   - **Token Information**: Metadata, supply, and authority status
+   - **Holder Distribution**: Top holders and concentration analysis
+   - **Detailed Analysis**: Rule-by-rule breakdown with explanations
+
+## 📊 Analysis Rules
+
+### 1. Token Metadata Quality (20 points)
+- ✅ Name and symbol present (5 pts)
+- ✅ Description provided (3 pts)
+- ✅ Logo/image available (2 pts)
+- ✅ Metadata URI present (5 pts)
+- ✅ Creators specified (5 pts)
+
+### 2. Authority Risk Analysis (30 points)
+- ✅ Mint authority burned (15 pts)
+- ✅ Freeze authority disabled (10 pts)
+- ✅ Metadata immutable (5 pts)
+
+### 3. Token Distribution Analysis (30 points)
+- ✅ Number of holders (10 pts)
+- ✅ Top holder concentration (10 pts)
+- ✅ Top 3 holders concentration (10 pts)
+
+### 4. Creator Wallet Audit (20 points)
+- ✅ Low recent activity (10 pts)
+- ✅ No suspicious token creation (10 pts)
+
+## 🎯 Risk Assessment
+
+### Trust Score Ranges
+- **75-100**: Low Risk ✅
+- **50-74**: Medium Risk ⚠️
+- **0-49**: High Risk 🚨
+
+### Common Risk Factors
+- 🚨 Mint authority not burned
+- 🚨 Freeze authority active
+- 🚨 High holder concentration (>50% in top holder)
+- 🚨 Creator with suspicious activity
+- ⚠️ Missing metadata or description
+- ⚠️ Centralized metadata storage
+
+## 🔧 API Integration
+
+### Helius RPC Methods Used
+- `getAccountInfo`: Mint and freeze authority status
+- `getTokenLargestAccounts`: Top token holders
+- `getSignaturesForAddress`: Creator transaction history
+
+### Helius REST Endpoints
+- `/tokens/metadata`: Token metadata and creators
+- `/token-holders`: Detailed holder information (with fallback)
+
+## 🏗️ Project Structure
+
 ```
-solana-token-analyzer/
-├── extension/              # Source files
-│   ├── popup.html         # Extension popup HTML
-│   ├── popup.css          # Styling
-│   ├── popup.js           # Main logic
-│   ├── background.js      # Background script
-│   ├── content.js         # Content script
-│   └── manifest.json      # Extension manifest
-├── dist/                  # Built extension files
-├── docs/                  # Documentation
-├── scripts/               # Build scripts
-├── package.json           # Dependencies
-└── README.md             # This file
+src/
+├── app/                    # Next.js app router
+├── components/
+│   ├── ui/                # shadcn/ui components
+│   └── token/             # Token analysis components
+│       ├── TokenAnalyzer.tsx      # Main analyzer component
+│       ├── TokenInfoCard.tsx      # Token metadata display
+│       ├── HolderList.tsx         # Holder distribution
+│       └── AuditResultRow.tsx     # Analysis results
+├── lib/
+│   └── api/helius/        # Helius API integration
+│       ├── types.ts       # TypeScript types and Zod schemas
+│       └── client.ts      # API client with error handling
+├── cursorRule/            # Analysis rule engine
+│   └── tokenAnalysisRules.ts     # Modular analysis rules
+└── types/                 # Global TypeScript types
 ```
-
-## 🔑 API Configuration
-
-The extension uses the following APIs:
-- **Bitquery GraphQL API** for holder data
-- **Solana RPC** for token metadata
-- **Jupiter API** for token information
-
-### Setting up API Keys
-1. Get a Bitquery API key from [bitquery.io](https://bitquery.io)
-2. Configure in the extension settings or environment variables
-
-## 📖 Usage
-
-### Basic Token Analysis
-1. **Click the extension icon** in your Chrome toolbar
-2. **Enter a Solana token address** (mint address)
-3. **Click "Analyze"** to start the analysis
-4. **Review the results**:
-   - Trust score and risk level
-   - Token information (name, symbol, supply, holders)
-   - Authority status
-   - Risk factors (if any)
-
-### Understanding Trust Scores
-- **🟢 70-100**: Low risk, generally safe
-- **🟡 40-69**: Medium risk, do your research
-- **🔴 0-39**: High risk, exercise caution
-
-### Risk Factors
-The extension checks for:
-- High holder concentration
-- Active mint/freeze authorities
-- Low holder count
-- Suspicious distribution patterns
-
-## 🛠️ Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and test thoroughly
-4. **Commit your changes**: `git commit -m 'Add amazing feature'`
-5. **Push to the branch**: `git push origin feature/amazing-feature`
-6. **Open a Pull Request**
-
-### Code Style
-- Use **TypeScript** for new features
-- Follow **ESLint** configuration
-- Write **tests** for new functionality
-- Update **documentation** as needed
 
 ## 🧪 Testing
 
-### Run Tests
+The application includes comprehensive error handling and validation:
+
+- **Input Validation**: Solana address format checking
+- **API Error Handling**: Graceful fallbacks for failed requests
+- **Type Safety**: Zod schemas for all API responses
+- **Rate Limiting**: Handles Helius API rate limits
+
+## 🔒 Security Features
+
+- **Input Sanitization**: All inputs validated before API calls
+- **Error Boundaries**: Graceful error handling throughout the app
+- **Type Safety**: Strict TypeScript configuration
+- **API Key Management**: Secure API key handling
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
 ```bash
-npm test
+npm run build
+# Deploy to Vercel
 ```
 
-### Test with Sample Tokens
+### Docker
 ```bash
-# Test with known tokens
-npm run test:tokens
+# Build the application
+npm run build
+
+# Create Docker image
+docker build -t solana-token-analyzer .
+
+# Run container
+docker run -p 3000:3000 solana-token-analyzer
 ```
 
-### Manual Testing
-1. Load the extension in developer mode
-2. Test with various token addresses
-3. Verify all features work correctly
+## 📝 Example Token Addresses for Testing
 
-## 📝 Changelog
+- **USDC**: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
+- **USDT**: `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB`
+- **SOL**: `So11111111111111111111111111111111111111112`
 
-### Version 1.0.0 (Current)
-- ✨ Initial release
-- 🎨 Modern UI redesign
-- 🛡️ Real-time security analysis
-- 📊 Holder distribution analysis
-- 🚀 Performance optimizations
+## 🤝 Contributing
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
-
-## 🤝 Support
-
-### Getting Help
-- 📖 Check the [Documentation](docs/)
-- 🐛 Report bugs in [Issues](https://github.com/yourusername/solana-token-analyzer/issues)
-- 💬 Join our [Discord community](#)
-- 📧 Email: support@example.com
-
-### Known Issues
-- Some tokens may have delayed metadata updates
-- Rate limiting may occur with rapid analysis requests
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- **Solana Foundation** for the blockchain infrastructure
-- **Bitquery** for providing GraphQL APIs
-- **Chrome Extensions Team** for the platform
-- **Open source community** for inspiration and tools
+- **Helius**: For providing the Solana RPC API
+- **shadcn/ui**: For the beautiful UI components
+- **Solana**: For the blockchain infrastructure
+- **Next.js**: For the React framework
 
-## 🔗 Links
+## 📞 Support
 
-- [Chrome Web Store](#) (Coming Soon)
-- [Documentation](docs/)
-- [API Reference](docs/api.md)
-- [Contributing Guide](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
+For questions or issues:
+1. Check the GitHub Issues
+2. Review the Helius API documentation
+3. Ensure your Solana addresses are valid mint addresses
 
 ---
 
-**⚠️ Disclaimer**: This tool is for informational purposes only. Always do your own research before making investment decisions. The developers are not responsible for any financial losses.
-
-**Made with ❤️ for the Solana community** 
+**Built with ❤️ for the Solana ecosystem** 

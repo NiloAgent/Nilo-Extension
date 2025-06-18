@@ -3,254 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solana Token Analyzer</title>
+    <title>Nilo - Solana Token Analyzer</title>
     <link rel="stylesheet" href="popup.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
-                        <path d="M2 17L12 22L22 17" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
-                        <path d="M2 12L12 17L22 12" stroke="url(#gradient)" stroke-width="2.5" stroke-linejoin="round"/>
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#ff9900"/>
-                                <stop offset="100%" style="stop-color:#ffb84d"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="brand-container">
+                <div class="logo-wrapper">
+                    <img src="icons/logo.png" alt="Nilo Logo" class="logo-icon" width="28" height="28">
                 </div>
-                <div class="logo-text">
-                    <h1>Solana Token Analyzer</h1>
-                    <div class="logo-subtitle">Security & Risk Assessment</div>
+                <div class="brand-text">
+                    <h1 class="brand-name">Nilo</h1>
+                    <p class="brand-subtitle">Solana Token Analyzer</p>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Search Section -->
-        <div class="search-section">
-            <div class="search-header">
-                <h2>Token Analysis</h2>
-                <div class="search-description">Enter a Solana mint address to analyze</div>
-            </div>
-            <div class="input-group">
-                <div class="input-wrapper">
-                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <input 
-                        type="text" 
-                        id="mintAddress" 
-                        placeholder="Enter Solana token contract address..."
-                        class="mint-input"
-                    >
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Search Card -->
+            <div class="search-card">
+                <div class="search-header">
+                    <h2 class="search-title">Analyze Token</h2>
+                    <p class="search-description">Enter a Solana token contract address to analyze</p>
                 </div>
-                <button id="analyzeBtn" class="analyze-btn">
-                    <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="btn-text">Analyze</span>
-                    <div class="spinner hidden"></div>
-                </button>
-            </div>
-            <div id="errorMessage" class="error-message hidden"></div>
-            <div class="help-text">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Valid Solana mint addresses are 32-44 base58 characters
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div id="resultsSection" class="results-section hidden">
-            <!-- Trust Score -->
-            <div class="trust-score-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 22S2 16 2 9C2 7 4 5 6 5C8 5 10 6 12 8C14 6 16 5 18 5C20 5 22 7 22 9C22 16 12 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                <div class="search-form">
+                    <div class="input-container">
+                        <input 
+                            type="text" 
+                            id="mintAddress" 
+                            placeholder="Enter Solana token contract address..."
+                            class="token-input"
+                        >
+                        <button id="analyzeBtn" class="analyze-button">
+                            <span class="btn-text">Analyze</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                    <div id="errorMessage" class="error-message hidden"></div>
+                    <div class="input-help">
+                        <svg class="help-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9.09 9A3 3 0 0 1 12 6A3 3 0 0 1 15 9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 17H12.01" stroke="currentColor" stroke-width="2"/>
                         </svg>
-                        Trust Score
-                    </div>
-                    <div id="riskBadge" class="risk-badge">--</div>
-                </div>
-                <div class="trust-score-display">
-                    <div class="trust-score-main">
-                        <div id="trustScore" class="trust-score-value">--</div>
-                        <div class="trust-score-max">/100</div>
-                    </div>
-                    <div class="trust-score-bar">
-                        <div id="trustScoreProgress" class="trust-score-progress"></div>
-                    </div>
-                </div>
-                <div id="trustSummary" class="trust-summary">
-                    Analyzing token security and risk factors...
-                </div>
-            </div>
-
-            <!-- Token Info -->
-            <div class="token-info-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        Token Information
-                    </div>
-                </div>
-                <div class="token-header">
-                    <img id="tokenImage" class="token-image hidden" alt="Token">
-                    <div class="token-details">
-                        <div id="tokenName" class="token-name">--</div>
-                        <div id="tokenSymbol" class="token-symbol">--</div>
-                    </div>
-                </div>
-                <div class="token-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6312 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6312 13.6815 18 14.5717 18 15.5C18 16.4283 17.6312 17.3185 16.9749 17.9749C16.3185 18.6312 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-label">Total Supply</div>
-                            <div id="tokenSupply" class="stat-value">--</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-label">Holders</div>
-                            <div id="holderCount" class="stat-value">--</div>
-                        </div>
+                        <span>Valid Solana mint address (32-44 base58 characters)</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Authority Status -->
-            <div class="authority-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        Authority Status
-                    </div>
-                </div>
-                <div class="authority-grid">
-                    <div class="authority-item">
-                        <div class="authority-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.2573 9.77251 19.9887C9.5799 19.7201 9.31074 19.5176 9 19.41C8.69838 19.2769 8.36381 19.2372 8.03941 19.296C7.71502 19.3548 7.41568 19.5095 7.18 19.74L7.12 19.8C6.93425 19.986 6.71368 20.1335 6.47088 20.2341C6.22808 20.3348 5.96783 20.3866 5.705 20.3866C5.44217 20.3866 5.18192 20.3348 4.93912 20.2341C4.69632 20.1335 4.47575 19.986 4.29 19.8C4.10405 19.6143 3.95653 19.3937 3.85588 19.1509C3.75523 18.9081 3.70343 18.6478 3.70343 18.385C3.70343 18.1222 3.75523 17.8619 3.85588 17.6191C3.95653 17.3763 4.10405 17.1557 4.29 16.97L4.35 16.91C4.58054 16.6743 4.73519 16.375 4.794 16.0506C4.85282 15.7262 4.81312 15.3916 4.68 15.09C4.55324 14.7942 4.34276 14.542 4.07447 14.3643C3.80618 14.1866 3.49179 14.0913 3.17 14.09H3C2.46957 14.09 1.96086 13.8793 1.58579 13.5042C1.21071 13.1291 1 12.6204 1 12.09C1 11.5596 1.21071 11.0509 1.58579 10.6758C1.96086 10.3007 2.46957 10.09 3 10.09H3.09C3.42099 10.0823 3.742 9.97512 4.01062 9.78251C4.27925 9.5899 4.48167 9.32074 4.59 9.01C4.72312 8.70838 4.76282 8.37381 4.704 8.04941C4.64519 7.72502 4.49054 7.42568 4.26 7.19L4.2 7.13C4.01405 6.94425 3.86653 6.72368 3.76588 6.48088C3.66523 6.23808 3.61343 5.97783 3.61343 5.715C3.61343 5.45217 3.66523 5.19192 3.76588 4.94912C3.86653 4.70632 4.01405 4.48575 4.2 4.3C4.38575 4.11405 4.60632 3.96653 4.84912 3.86588C5.09192 3.76523 5.35217 3.71343 5.615 3.71343C5.87783 3.71343 6.13808 3.76523 6.38088 3.86588C6.62368 3.96653 6.84425 4.11405 7.03 4.3L7.09 4.36C7.32568 4.59054 7.62502 4.74519 7.94941 4.804C8.27381 4.86282 8.60838 4.82312 8.91 4.69H9C9.29577 4.56324 9.54802 4.35276 9.72569 4.08447C9.90337 3.81618 9.99872 3.50179 10 3.18V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="authority-content">
-                            <div class="authority-label">Mint Authority</div>
-                            <div id="mintAuthority" class="authority-status">--</div>
-                        </div>
-                    </div>
-                    <div class="authority-item">
-                        <div class="authority-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V18C20 18.5304 19.7893 19.0391 19.4142 19.4142C19.0391 19.7893 18.5304 20 18 20H6C5.46957 20 4.96086 19.7893 4.58579 19.4142C4.21071 19.0391 4 18.5304 4 18V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8M16 4C16 3.46957 15.7893 2.96086 15.4142 2.58579C15.0391 2.21071 14.5304 2 14 2H10C9.46957 2 8.96086 2.21071 8.58579 2.58579C8.21071 2.96086 8 3.46957 8 4M16 4C16 4.53043 15.7893 5.03914 15.4142 5.41421C15.0391 5.78929 14.5304 6 14 6H10C9.46957 6 8.96086 5.78929 8.58579 5.41421C8.21071 5.03914 8 4.53043 8 4M12 12V16M10 14H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="authority-content">
-                            <div class="authority-label">Freeze Authority</div>
-                            <div id="freezeAuthority" class="authority-status">--</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Risk Factors -->
-            <div id="riskFactorsCard" class="risk-factors-card hidden">
-                <div class="card-header">
-                    <div class="card-title risk-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        Risk Factors Detected
-                    </div>
-                </div>
-                <div id="riskFactorsList" class="risk-factors-list"></div>
-            </div>
-
-            <!-- Actions -->
-            <div class="actions">
-                <button id="viewOnSolscan" class="action-btn secondary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    View on Solscan
-                </button>
-                <button id="analyzeAnother" class="action-btn primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2"/>
-                        <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Analyze Another
-                </button>
-            </div>
-        </div>
-
-        <!-- Loading State -->
-        <div id="loadingSection" class="loading-section hidden">
-            <div class="loading-container">
-                <div class="loading-spinner"></div>
+            <!-- Loading State -->
+            <div id="loadingSection" class="loading-card hidden">
                 <div class="loading-content">
-                    <div class="loading-text">Analyzing Token</div>
-                    <div class="loading-subtitle">This may take a few moments...</div>
+                    <div class="loading-spinner"></div>
+                    <h3 class="loading-title">Analyzing Token</h3>
+                    <p class="loading-subtitle">Please wait while we analyze the token...</p>
+                </div>
+                <div class="loading-steps">
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Fetching metadata...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Checking authorities...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Analyzing distribution...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Calculating trust score...</span>
+                    </div>
                 </div>
             </div>
-            <div class="loading-steps">
-                <div class="loading-step active">
-                    <div class="step-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-container hidden">
+                <!-- Trust Score Card -->
+                <div class="trust-score-card">
+                    <div class="card-header">
+                        <div class="trust-score-icon">
+                            <svg id="riskIcon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 22S2 16 2 9C2 7 4 5 6 5C8 5 10 6 12 8C14 6 16 5 18 5C20 5 22 7 22 9C22 16 12 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="trust-score-content">
+                            <h3 class="card-title">Trust Score</h3>
+                            <div class="trust-score-display">
+                                <span id="trustScore" class="trust-score-value">--</span>
+                                <div id="riskBadge" class="risk-badge">--</div>
+                            </div>
+                        </div>
                     </div>
-                    <span>Fetching metadata...</span>
+                    <div id="trustSummary" class="trust-summary">
+                        Analyzing token...
+                    </div>
                 </div>
-                <div class="loading-step">
-                    <div class="step-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
+
+                <!-- Token Information Card -->
+                <div class="token-info-card">
+                    <div class="card-header">
+                        <div class="token-header">
+                            <img id="tokenImage" class="token-image hidden" alt="Token">
+                            <div class="token-identity">
+                                <h3 id="tokenName" class="token-name">--</h3>
+                                <p id="tokenSymbol" class="token-symbol">--</p>
+                            </div>
+                        </div>
                     </div>
-                    <span>Checking authorities...</span>
+                    <div class="token-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">Total Supply</div>
+                            <div id="tokenSupply" class="metric-value">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Holders</div>
+                            <div id="holderCount" class="metric-value">--</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="loading-step">
-                    <div class="step-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
+
+                <!-- Authority Status Card -->
+                <div class="authority-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Authority Status</h3>
                     </div>
-                    <span>Analyzing distribution...</span>
+                    <div class="authority-grid">
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Mint Authority</span>
+                                <div id="mintAuthority" class="authority-status">--</div>
+                            </div>
+                        </div>
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Freeze Authority</span>
+                                <div id="freezeAuthority" class="authority-status">--</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="loading-step">
-                    <div class="step-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2"/>
-                        </svg>
+
+                <!-- Risk Factors Card -->
+                <div id="riskFactorsCard" class="risk-factors-card hidden">
+                    <div class="card-header">
+                        <div class="risk-factors-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">Risk Factors</h3>
                     </div>
-                    <span>Calculating trust score...</span>
+                    <div id="riskFactorsList" class="risk-factors-list"></div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="actions-card">
+                    <button id="viewOnSolscan" class="action-button secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>View on Solscan</span>
+                    </button>
+                    <button id="analyzeAnother" class="action-button primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21L16.514 16.506L21 21ZM18 10.5C18 15.194 14.194 19 9.5 19C4.806 19 1 15.194 1 10.5C1 5.806 4.806 2 9.5 2C14.194 2 18 5.806 18 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Analyze Another</span>
+                    </button>
                 </div>
             </div>
-        </div>
+        </main>
+
+
     </div>
 
     <script src="popup.js"></script>

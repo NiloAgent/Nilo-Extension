@@ -6,9 +6,7 @@
   "permissions": [
     "storage",
     "tabs",
-    "contextMenus",
-    "activeTab",
-    "notifications"
+    "contextMenus"
   ],
   "host_permissions": [
     "https://streaming.bitquery.io/*",
