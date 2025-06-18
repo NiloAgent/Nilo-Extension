@@ -38,9 +38,15 @@ A comprehensive Solana token analysis tool built with Next.js 15, TypeScript, an
 - npm or yarn
 - Helius API key (included in the project)
 
-## 🚀 Getting Started
+## 🚀 Installation
 
-1. **Clone the repository**
+### Option 1: Install from Chrome Web Store (Coming Soon)
+1. Visit the [Chrome Web Store page](#)
+2. Click "Add to Chrome"
+3. Confirm installation
+
+### Option 2: Manual Installation (Developer Mode)
+1. **Download the extension and web dashboard**:
    ```bash
    git clone <repository-url>
    cd nilo
@@ -215,4 +221,6 @@ For questions or issues:
 
 ---
 
-**Built with ❤️ for the Solana ecosystem** 
+**⚠️ Disclaimer**: This tool is for informational purposes only. Always do your own research before making investment decisions. The developers are not responsible for any financial losses.
+
+**Made with ❤️ for the Solana community**
