@@ -16,13 +16,7 @@
     "https://solana.public-rpc.com/*",
     "https://token.jup.ag/*",
     "https://raw.githubusercontent.com/*",
-    "https://solscan.io/*",
-    "https://solana.fm/*",
-    "https://dexscreener.com/*",
-    "https://raydium.io/*",
-    "https://pump.fun/*",
-    "https://birdeye.so/*",
-    "https://jupiter.ag/*"
+    "https://api.github.com/*"
   ],
   "action": {
     "default_popup": "popup.html",

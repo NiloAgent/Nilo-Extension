@@ -23,14 +23,23 @@
 
         <!-- Main Content -->
         <main class="app-main">
-            <!-- Search Card -->
-            <div class="search-card">
-                <div class="search-header">
-                    <h2 class="search-title">Analyze Token</h2>
-                    <p class="search-description">Enter a Solana token contract address to analyze</p>
+            <!-- Token Analysis Card -->
+            <div class="analysis-card token-analysis-card">
+                <div class="card-header">
+                    <div class="section-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="section-content">
+                        <h2 class="section-title">Analyze Token</h2>
+                        <p class="section-description">Enter a Solana token contract address to analyze security and metrics</p>
+                    </div>
                 </div>
-                <div class="search-form">
-                    <div class="input-container">
+                <div class="card-body">
+                    <div class="input-group">
                         <input 
                             type="text" 
                             id="mintAddress" 
@@ -51,6 +60,121 @@
                         </svg>
                         <span>Valid Solana mint address (32-44 base58 characters)</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- GitHub Repository Analysis Card -->
+            <div class="analysis-card github-analysis-card">
+                <div class="card-header">
+                    <div class="section-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="section-content">
+                        <h2 class="section-title">Analyze GitHub Repository</h2>
+                        <p class="section-description">Enter a GitHub repository URL to analyze trustworthiness and development activity</p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="githubRepoUrl" 
+                            placeholder="Enter GitHub repo URL (e.g., https://github.com/user/repo)"
+                            class="token-input"
+                        >
+                        <button id="analyzeGithubBtn" class="analyze-button">
+                            <span class="btn-text">Analyze</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                    <div id="githubErrorMessage" class="error-message hidden"></div>
+                    <div class="input-help">
+                        <svg class="help-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                        </svg>
+                        <span>Valid GitHub repository URL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub Project Info Section -->
+            <div id="githubProjectSection" class="github-project-section">
+                <div class="card-header">
+                    <div class="github-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">GitHub Project Info</h3>
+                </div>
+                
+                <div id="githubProjectLoading" class="github-loading">
+                    <div class="loading-spinner-small"></div>
+                    <span>Loading project info...</span>
+                </div>
+                
+                <div id="githubProjectContent" class="github-content hidden">
+                    <div class="github-repo-info">
+                        <div class="repo-header">
+                            <div class="repo-name">
+                                <a id="githubProjectRepoLink" href="#" target="_blank" class="repo-link">
+                                    <span id="githubProjectRepoName">--</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                        <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div id="githubProjectDescription" class="repo-description">--</div>
+                        </div>
+                        <div class="repo-metrics">
+                            <div class="metric-item">
+                                <div class="metric-icon">⭐</div>
+                                <div class="metric-value" id="githubProjectStars">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">👥</div>
+                                <div class="metric-value" id="githubProjectContributors">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">📅</div>
+                                <div class="metric-value" id="githubProjectLastUpdate">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">💻</div>
+                                <div class="metric-value" id="githubProjectLanguage">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- GitHub Trust Score Section -->
+                    <div class="github-trust-score">
+                        <div class="trust-score-header">
+                            <h4 class="trust-score-title">GitHub Trust Score</h4>
+                            <div class="github-score-display">
+                                <span id="githubProjectTrustScore" class="github-score-value">--</span>
+                                <div id="githubProjectRiskBadge" class="github-risk-badge">--</div>
+                            </div>
+                        </div>
+                        <div id="githubProjectTrustExplanation" class="trust-explanation">
+                            Analyzing repository signals...
+                        </div>
+                    </div>
+                    
+                    <div class="github-actions">
+                        <button id="viewProjectOnGithub" class="action-button secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                            </svg>
+                            <span>View on GitHub</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="githubProjectError" class="github-error hidden">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-message">Project analysis not available</div>
                 </div>
             </div>
 
@@ -177,11 +301,146 @@
                     </button>
                 </div>
             </div>
+
+            <!-- GitHub Analysis Loading State -->
+            <div id="githubLoadingSection" class="loading-card hidden">
+                <div class="loading-content">
+                    <div class="loading-spinner"></div>
+                    <h3 class="loading-title">Analyzing Repository</h3>
+                    <p class="loading-subtitle">Please wait while we analyze the GitHub repository...</p>
+                </div>
+                <div class="loading-steps">
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Fetching repository data...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Analyzing contributors...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Checking activity...</span>
+                    </div>
+                    <div class="loading-step">
+                        <div class="step-indicator"></div>
+                        <span>Calculating trust score...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub Analysis Results Section -->
+            <div id="githubResultsSection" class="results-container hidden">
+                <!-- GitHub Trust Score Card -->
+                <div class="trust-score-card">
+                    <div class="card-header">
+                        <div class="trust-score-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="trust-score-content">
+                            <h3 class="card-title">GitHub Trust Score</h3>
+                            <div class="trust-score-display">
+                                <span id="githubTrustScore" class="trust-score-value">--</span>
+                                <div id="githubRiskBadge" class="risk-badge">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="githubTrustSummary" class="trust-summary">
+                        Analyzing repository...
+                    </div>
+                </div>
+
+                <!-- Repository Information Card -->
+                <div class="token-info-card">
+                    <div class="card-header">
+                        <div class="token-header">
+                            <div class="github-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z"/>
+                                </svg>
+                            </div>
+                            <div class="token-identity">
+                                <h3 id="githubRepoName" class="token-name">--</h3>
+                                <p id="githubRepoOwner" class="token-symbol">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="githubRepoDescription" class="repo-description" style="padding: 0 24px 16px 24px; color: #a1a1a1; font-size: 14px; line-height: 1.5;">--</div>
+                    <div class="token-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">Stars</div>
+                            <div id="githubStars" class="metric-value">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Contributors</div>
+                            <div id="githubContributors" class="metric-value">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Last Updated</div>
+                            <div id="githubLastUpdate" class="metric-value">--</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Language</div>
+                            <div id="githubLanguage" class="metric-value">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repository Stats Card -->
+                <div class="authority-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Repository Stats</h3>
+                    </div>
+                    <div class="authority-grid">
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Open Issues</span>
+                                <div id="githubOpenIssues" class="authority-status">--</div>
+                            </div>
+                        </div>
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Forks</span>
+                                <div id="githubForks" class="authority-status">--</div>
+                            </div>
+                        </div>
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">License</span>
+                                <div id="githubLicense" class="authority-status">--</div>
+                            </div>
+                        </div>
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Created</span>
+                                <div id="githubCreated" class="authority-status">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="actions-card">
+                    <button id="viewOnGithub" class="action-button secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>View on GitHub</span>
+                    </button>
+                    <button id="analyzeAnotherRepo" class="action-button primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21L16.514 16.506L21 21ZM18 10.5C18 15.194 14.194 19 9.5 19C4.806 19 1 15.194 1 10.5C1 5.806 4.806 2 9.5 2C14.194 2 18 5.806 18 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Analyze Another</span>
+                    </button>
+                </div>
+            </div>
         </main>
-
-
     </div>
 
+    <!-- Load the main popup JavaScript -->
     <script src="popup.js"></script>
 </body>
 </html> 

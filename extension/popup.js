@@ -41,8 +41,22 @@ const elements = {
   viewOnSolscan: document.getElementById('viewOnSolscan'),
   analyzeAnother: document.getElementById('analyzeAnother'),
   btnText: document.querySelector('.btn-text'),
-  spinner: document.querySelector('.spinner')
+  spinner: document.querySelector('.spinner'),
+  // Analysis card elements for mutual exclusivity
+  tokenAnalysisCard: document.querySelector('.token-analysis-card'),
+  githubAnalysisCard: document.querySelector('.github-analysis-card')
 };
+
+// Debug: Check if card elements are found
+console.log('🔍 DOM Elements Check:');
+console.log('Token Analysis Card:', elements.tokenAnalysisCard ? '✅ Found' : '❌ Not Found');
+console.log('GitHub Analysis Card:', elements.githubAnalysisCard ? '✅ Found' : '❌ Not Found');
+if (elements.tokenAnalysisCard) {
+  console.log('Token Card Class:', elements.tokenAnalysisCard.className);
+}
+if (elements.githubAnalysisCard) {
+  console.log('GitHub Card Class:', elements.githubAnalysisCard.className);
+}
 
 // IMMEDIATE TEST - Verify our code is running
 setTimeout(() => {
@@ -62,6 +76,87 @@ setTimeout(() => {
 
 // Global variable to store current mint address for Solscan link
 let currentMintAddress = '';
+
+// Analysis state tracking for mutual exclusivity
+let analysisState = {
+  tokenAnalyzing: false,
+  githubAnalyzing: false
+};
+
+// Mutual Exclusivity Functions
+function hideTokenAnalysisCard() {
+  if (elements.tokenAnalysisCard) {
+    elements.tokenAnalysisCard.style.display = 'none';
+    console.log('🔒 Token analysis card hidden successfully');
+  } else {
+    console.error('❌ tokenAnalysisCard element not found!');
+  }
+}
+
+function showTokenAnalysisCard() {
+  if (elements.tokenAnalysisCard) {
+    elements.tokenAnalysisCard.style.display = 'block';
+    console.log('🔓 Token analysis card shown successfully');
+  } else {
+    console.error('❌ tokenAnalysisCard element not found!');
+  }
+}
+
+function hideGithubAnalysisCard() {
+  if (elements.githubAnalysisCard) {
+    elements.githubAnalysisCard.style.display = 'none';
+    console.log('🔒 GitHub analysis card hidden successfully');
+  } else {
+    console.error('❌ githubAnalysisCard element not found!');
+  }
+}
+
+function showGithubAnalysisCard() {
+  if (elements.githubAnalysisCard) {
+    elements.githubAnalysisCard.style.display = 'block';
+    console.log('🔓 GitHub analysis card shown successfully');
+  } else {
+    console.error('❌ githubAnalysisCard element not found!');
+  }
+}
+
+function setTokenAnalyzing(analyzing) {
+  analysisState.tokenAnalyzing = analyzing;
+  console.log(`🎯 Token analyzing state: ${analyzing}`);
+  
+  if (analyzing) {
+    console.log('🎯 Token analysis STARTING - hiding GitHub card');
+    hideGithubAnalysisCard();
+  } else {
+    console.log('🎯 Token analysis FINISHED - checking if should show GitHub card');
+    // Only show GitHub card if GitHub isn't analyzing
+    if (!analysisState.githubAnalyzing) {
+      console.log('🎯 GitHub not analyzing - showing GitHub card');
+      showGithubAnalysisCard();
+    } else {
+      console.log('🎯 GitHub is analyzing - keeping GitHub card hidden');
+    }
+  }
+}
+
+function setGithubAnalyzing(analyzing) {
+  analysisState.githubAnalyzing = analyzing;
+  console.log(`🎯 GitHub analyzing state: ${analyzing}`);
+  
+  if (analyzing) {
+    console.log('🎯 GitHub analysis STARTING - hiding Token card');
+    hideTokenAnalysisCard();
+  } else {
+    console.log('🎯 GitHub analysis FINISHED - checking if should show Token card');
+    // Only show Token card if Token isn't analyzing
+    if (!analysisState.tokenAnalyzing) {
+      console.log('🎯 Token not analyzing - showing Token card');
+      showTokenAnalysisCard();
+    } else {
+      console.log('🎯 Token is analyzing - keeping Token card hidden');
+    }
+  }
+}
 
 // Utility Functions
 function validateSolanaAddress(address) {
@@ -112,6 +207,9 @@ function hideError() {
 }
 
 function showLoading() {
+  // Set token analyzing state for mutual exclusivity
+  setTokenAnalyzing(true);
+  
   if (elements.loadingSection) {
     elements.loadingSection.classList.remove('hidden');
   }
@@ -130,6 +228,9 @@ function showLoading() {
 }
 
 function hideLoading() {
+  // Clear token analyzing state for mutual exclusivity
+  setTokenAnalyzing(false);
+  
   if (elements.loadingSection) {
     elements.loadingSection.classList.add('hidden');
   }
@@ -1189,3 +1290,491 @@ elements.viewOnSolscan.addEventListener('click', () => {
 
 // Auto-focus on input
 elements.mintAddress.focus(); 
+
+// Initialize mutual exclusivity - ensure both cards are visible at startup
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🎯 Initializing mutual exclusivity system...');
+  showTokenAnalysisCard();
+  showGithubAnalysisCard();
+  console.log('✅ Both analysis cards initialized as visible');
+});
+
+// If DOM is already loaded, run initialization immediately
+if (document.readyState === 'loading') {
+  // Wait for DOMContentLoaded
+} else {
+  // DOM is already loaded
+  console.log('🎯 DOM already loaded, initializing mutual exclusivity system...');
+  showTokenAnalysisCard();
+  showGithubAnalysisCard();
+  console.log('✅ Both analysis cards initialized as visible');
+}
+
+// Add a global test function for debugging
+window.testMutualExclusivity = function() {
+  console.log('🧪 Testing Mutual Exclusivity System...');
+  console.log('🧪 Current State:', analysisState);
+  
+  console.log('🧪 Testing Token Analysis...');
+  setTokenAnalyzing(true);
+  
+  setTimeout(() => {
+    console.log('🧪 Token analysis complete, testing GitHub analysis...');
+    setTokenAnalyzing(false);
+    
+    setTimeout(() => {
+      console.log('🧪 Testing GitHub Analysis...');
+      setGithubAnalyzing(true);
+      
+      setTimeout(() => {
+        console.log('🧪 GitHub analysis complete');
+        setGithubAnalyzing(false);
+        console.log('🧪 Test Complete! Check console logs above.');
+      }, 2000);
+    }, 1000);
+  }, 2000);
+};
+
+// Add to window for easy access
+window.debugMutualExclusivity = function() {
+  console.log('🔍 Debug Information:');
+  console.log('Analysis State:', analysisState);
+  console.log('Token Card Element:', elements.tokenAnalysisCard);
+  console.log('GitHub Card Element:', elements.githubAnalysisCard);
+  
+  if (elements.tokenAnalysisCard) {
+    console.log('Token Card Display:', elements.tokenAnalysisCard.style.display);
+    console.log('Token Card Computed Style:', window.getComputedStyle(elements.tokenAnalysisCard).display);
+  }
+  
+  if (elements.githubAnalysisCard) {
+    console.log('GitHub Card Display:', elements.githubAnalysisCard.style.display);
+    console.log('GitHub Card Computed Style:', window.getComputedStyle(elements.githubAnalysisCard).display);
+  }
+};
+
+console.log('🧪 Test functions available:');
+console.log('🧪 - testMutualExclusivity() - Run a full test sequence');
+console.log('🧪 - debugMutualExclusivity() - Show current state info');
+
+// ===== GITHUB REPOSITORY ANALYZER FUNCTIONALITY =====
+
+// GitHub API configuration
+const GITHUB_TOKEN = ''; // Add your GitHub personal access token here
+const GITHUB_API_BASE = 'https://api.github.com';
+
+// Current GitHub repo for button actions
+let currentGithubRepo = null;
+
+// GitHub DOM elements
+const githubElements = {
+  repoUrl: document.getElementById('githubRepoUrl'),
+  analyzeGithubBtn: document.getElementById('analyzeGithubBtn'),
+  githubErrorMessage: document.getElementById('githubErrorMessage'),
+  githubLoadingSection: document.getElementById('githubLoadingSection'),
+  githubResultsSection: document.getElementById('githubResultsSection'),
+  githubTrustScore: document.getElementById('githubTrustScore'),
+  githubRiskBadge: document.getElementById('githubRiskBadge'),
+  githubTrustSummary: document.getElementById('githubTrustSummary'),
+  githubRepoName: document.getElementById('githubRepoName'),
+  githubRepoOwner: document.getElementById('githubRepoOwner'),
+  githubRepoDescription: document.getElementById('githubRepoDescription'),
+  githubStars: document.getElementById('githubStars'),
+  githubContributors: document.getElementById('githubContributors'),
+  githubLastUpdate: document.getElementById('githubLastUpdate'),
+  githubLanguage: document.getElementById('githubLanguage'),
+  githubOpenIssues: document.getElementById('githubOpenIssues'),
+  githubForks: document.getElementById('githubForks'),
+  githubLicense: document.getElementById('githubLicense'),
+  githubCreated: document.getElementById('githubCreated'),
+  viewOnGithub: document.getElementById('viewOnGithub'),
+  analyzeAnotherRepo: document.getElementById('analyzeAnotherRepo')
+};
+
+// Validate GitHub URL
+function validateGithubUrl(url) {
+  const githubRegex = /^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/;
+  return githubRegex.test(url);
+}
+
+// Parse GitHub URL to extract owner and repo
+function parseGithubUrl(url) {
+  const match = url.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/);
+  if (match) {
+    return {
+      owner: match[1],
+      repo: match[2]
+    };
+  }
+  return null;
+}
+
+// Show GitHub error message
+function showGithubError(message) {
+  githubElements.githubErrorMessage.textContent = message;
+  githubElements.githubErrorMessage.classList.remove('hidden');
+}
+
+// Hide GitHub error message
+function hideGithubError() {
+  githubElements.githubErrorMessage.classList.add('hidden');
+}
+
+// Show GitHub loading state
+function showGithubLoading() {
+  // Set GitHub analyzing state for mutual exclusivity
+  setGithubAnalyzing(true);
+  
+  githubElements.githubLoadingSection.classList.remove('hidden');
+  githubElements.githubResultsSection.classList.add('hidden');
+  githubElements.analyzeGithubBtn.disabled = true;
+  
+  // Animate the loading steps
+  const steps = githubElements.githubLoadingSection.querySelectorAll('.loading-step');
+  steps.forEach((step, index) => {
+    setTimeout(() => {
+      step.style.opacity = '1';
+      step.querySelector('.step-indicator').style.background = 'var(--color-primary)';
+    }, index * 500);
+  });
+}
+
+// Hide GitHub loading state
+function hideGithubLoading() {
+  // Clear GitHub analyzing state for mutual exclusivity
+  setGithubAnalyzing(false);
+  
+  githubElements.githubLoadingSection.classList.add('hidden');
+  githubElements.analyzeGithubBtn.disabled = false;
+  
+  // Reset loading steps
+  const steps = githubElements.githubLoadingSection.querySelectorAll('.loading-step');
+  steps.forEach(step => {
+    step.style.opacity = '0.5';
+    step.querySelector('.step-indicator').style.background = 'var(--color-border)';
+  });
+}
+
+// Show GitHub results
+function showGithubResults() {
+  githubElements.githubResultsSection.classList.remove('hidden');
+}
+
+// Make GitHub API request
+async function makeGithubRequest(endpoint) {
+  const url = `${GITHUB_API_BASE}${endpoint}`;
+  console.log(`🔍 Making GitHub API request: ${url}`);
+  
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'Nilo-Extension'
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Repository not found');
+      } else if (response.status === 403) {
+        throw new Error('API rate limit exceeded or access denied');
+      } else {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+    }
+    
+    const data = await response.json();
+    console.log('✅ GitHub API response received');
+    return data;
+    
+  } catch (error) {
+    console.error('❌ GitHub API request failed:', error);
+    throw error;
+  }
+}
+
+// Get repository data
+async function getRepositoryData(owner, repo) {
+  console.log(`📊 Fetching repository data for ${owner}/${repo}`);
+  
+  try {
+    // Get basic repository information
+    const repoData = await makeGithubRequest(`/repos/${owner}/${repo}`);
+    
+    // Get contributors count
+    let contributorsCount = 0;
+    try {
+      const contributors = await makeGithubRequest(`/repos/${owner}/${repo}/contributors?per_page=100`);
+      contributorsCount = Array.isArray(contributors) ? contributors.length : 0;
+    } catch (error) {
+      console.warn('⚠️ Could not fetch contributors:', error.message);
+    }
+    
+    return {
+      ...repoData,
+      contributorsCount
+    };
+    
+  } catch (error) {
+    console.error('❌ Error fetching repository data:', error);
+    throw error;
+  }
+}
+
+// Calculate GitHub trust score
+function calculateGithubTrustScore(repoData) {
+  console.log('🧮 Calculating GitHub trust score...');
+  
+  let score = 0;
+  const factors = [];
+  
+  // Stars scoring (30% weight)
+  const stars = repoData.stargazers_count || 0;
+  if (stars >= 1000) {
+    score += 3;
+    factors.push(`High popularity (${stars.toLocaleString()} stars)`);
+  } else if (stars >= 100) {
+    score += 2;
+    factors.push(`Good popularity (${stars} stars)`);
+  } else if (stars >= 10) {
+    score += 1;
+    factors.push(`Some popularity (${stars} stars)`);
+  } else {
+    score -= 1;
+    factors.push(`Low popularity (${stars} stars)`);
+  }
+  
+  // Contributors scoring (25% weight)
+  const contributors = repoData.contributorsCount || 0;
+  if (contributors >= 10) {
+    score += 2;
+    factors.push(`Active community (${contributors} contributors)`);
+  } else if (contributors >= 3) {
+    score += 1;
+    factors.push(`Small team (${contributors} contributors)`);
+  } else if (contributors >= 1) {
+    score -= 1;
+    factors.push(`Single developer project (${contributors} contributor${contributors === 1 ? '' : 's'})`);
+  } else {
+    score -= 2;
+    factors.push('No contributors found');
+  }
+  
+  // Last update scoring (20% weight)
+  const lastUpdate = new Date(repoData.updated_at);
+  const daysSinceUpdate = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (daysSinceUpdate <= 7) {
+    score += 2;
+    factors.push('Recently updated (within 7 days)');
+  } else if (daysSinceUpdate <= 30) {
+    score += 1;
+    factors.push('Recently updated (within 30 days)');
+  } else if (daysSinceUpdate <= 365) {
+    factors.push(`Updated ${daysSinceUpdate} days ago`);
+  } else {
+    score -= 2;
+    factors.push(`Stale project (${Math.floor(daysSinceUpdate / 365)} year${Math.floor(daysSinceUpdate / 365) === 1 ? '' : 's'} since update)`);
+  }
+  
+  // Description scoring (10% weight)
+  if (repoData.description && repoData.description.trim()) {
+    score += 1;
+    factors.push('Has description');
+  } else {
+    score -= 1;
+    factors.push('Missing description');
+  }
+  
+  // License scoring (10% weight)
+  if (repoData.license && repoData.license.name) {
+    score += 1;
+    factors.push(`Open source license (${repoData.license.name})`);
+  }
+  
+  // Open issues scoring (5% weight)
+  const openIssues = repoData.open_issues_count || 0;
+  if (openIssues > 100) {
+    score -= 1;
+    factors.push(`Many open issues (${openIssues})`);
+  }
+  
+  // Determine risk level
+  let level, summary;
+  if (score >= 7) {
+    level = 'LEGIT';
+    summary = 'This repository appears to be legitimate and well-maintained.';
+  } else if (score >= 4) {
+    level = 'MEDIUM';
+    summary = 'This repository has some positive indicators but requires careful evaluation.';
+  } else {
+    level = 'HIGH';
+    summary = 'This repository has several risk factors and should be approached with caution.';
+  }
+  
+  console.log(`✅ Trust score calculated: ${score}/10 (${level})`);
+  
+  return {
+    score: Math.max(0, Math.min(10, score)),
+    level,
+    summary,
+    factors
+  };
+}
+
+// Update GitHub trust score display
+function updateGithubTrustScore(analysis) {
+  const { score, level, summary } = analysis;
+  
+  // Update score display
+  githubElements.githubTrustScore.textContent = `${score}/10`;
+  githubElements.githubTrustSummary.textContent = summary;
+  
+  // Update risk badge
+  githubElements.githubRiskBadge.textContent = level === 'LEGIT' ? '✅ Legit Project' : 
+                                               level === 'MEDIUM' ? '⚠️ Medium Risk' : '❌ High Risk';
+  
+  // Apply appropriate styling
+  githubElements.githubRiskBadge.className = `risk-badge ${level.toLowerCase()}`;
+  
+  // Color code the trust score
+  if (score >= 7) {
+    githubElements.githubTrustScore.style.color = '#10b981'; // green
+  } else if (score >= 4) {
+    githubElements.githubTrustScore.style.color = '#f59e0b'; // yellow
+  } else {
+    githubElements.githubTrustScore.style.color = '#ef4444'; // red
+  }
+}
+
+// Update GitHub repository information
+function updateGithubInfo(repoData) {
+  console.log('📝 Updating GitHub repository display...');
+  
+  try {
+    // Basic info
+    githubElements.githubRepoName.textContent = repoData.name || 'Unknown';
+    githubElements.githubRepoOwner.textContent = repoData.owner?.login || 'Unknown';
+    githubElements.githubRepoDescription.textContent = repoData.description || 'No description available';
+    
+    // Metrics
+    githubElements.githubStars.textContent = (repoData.stargazers_count || 0).toLocaleString();
+    githubElements.githubContributors.textContent = (repoData.contributorsCount || 0).toLocaleString();
+    githubElements.githubLanguage.textContent = repoData.language || 'Unknown';
+    
+    // Format last update
+    if (repoData.updated_at) {
+      const lastUpdate = new Date(repoData.updated_at);
+      const daysSinceUpdate = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceUpdate === 0) {
+        githubElements.githubLastUpdate.textContent = 'Today';
+      } else if (daysSinceUpdate === 1) {
+        githubElements.githubLastUpdate.textContent = '1 day ago';
+      } else if (daysSinceUpdate < 30) {
+        githubElements.githubLastUpdate.textContent = `${daysSinceUpdate} days ago`;
+      } else if (daysSinceUpdate < 365) {
+        const months = Math.floor(daysSinceUpdate / 30);
+        githubElements.githubLastUpdate.textContent = `${months} month${months === 1 ? '' : 's'} ago`;
+      } else {
+        const years = Math.floor(daysSinceUpdate / 365);
+        githubElements.githubLastUpdate.textContent = `${years} year${years === 1 ? '' : 's'} ago`;
+      }
+    } else {
+      githubElements.githubLastUpdate.textContent = 'Unknown';
+    }
+    
+    // Stats
+    githubElements.githubOpenIssues.textContent = (repoData.open_issues_count || 0).toLocaleString();
+    githubElements.githubForks.textContent = (repoData.forks_count || 0).toLocaleString();
+    githubElements.githubLicense.textContent = repoData.license?.name || 'No license';
+    
+    // Format creation date
+    if (repoData.created_at) {
+      const created = new Date(repoData.created_at);
+      githubElements.githubCreated.textContent = created.toLocaleDateString();
+    } else {
+      githubElements.githubCreated.textContent = 'Unknown';
+    }
+    
+    console.log('✅ GitHub repository display updated successfully');
+    
+  } catch (error) {
+    console.error('❌ Error updating GitHub repository display:', error);
+    showGithubError('Error displaying repository information');
+  }
+}
+
+// Main GitHub analysis function
+async function analyzeGithubRepository() {
+  const repoUrl = githubElements.repoUrl.value.trim();
+  
+  if (!repoUrl) {
+    showGithubError('Please enter a GitHub repository URL');
+    return;
+  }
+  
+  if (!validateGithubUrl(repoUrl)) {
+    showGithubError('Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo)');
+    return;
+  }
+  
+  const parsed = parseGithubUrl(repoUrl);
+  if (!parsed) {
+    showGithubError('Unable to parse the GitHub URL');
+    return;
+  }
+  
+  hideGithubError();
+  showGithubLoading();
+  
+  try {
+    console.log(`🔍 Analyzing GitHub repository: ${parsed.owner}/${parsed.repo}`);
+    
+    // Store the current repo for button actions
+    currentGithubRepo = { ...parsed, url: repoUrl };
+    
+    // Get repository data
+    const repoData = await getRepositoryData(parsed.owner, parsed.repo);
+    
+    // Calculate trust score
+    const analysis = calculateGithubTrustScore(repoData);
+    
+    // Update displays
+    updateGithubInfo(repoData);
+    updateGithubTrustScore(analysis);
+    
+    console.log('✅ GitHub repository analysis complete');
+    
+    showGithubResults();
+    
+  } catch (error) {
+    console.error('❌ GitHub repository analysis failed:', error);
+    showGithubError(`Analysis failed: ${error.message}`);
+  } finally {
+    hideGithubLoading();
+  }
+}
+
+// GitHub Event Listeners
+githubElements.analyzeGithubBtn.addEventListener('click', analyzeGithubRepository);
+
+githubElements.repoUrl.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    analyzeGithubRepository();
+  }
+});
+
+githubElements.analyzeAnotherRepo.addEventListener('click', () => {
+  githubElements.repoUrl.value = '';
+  githubElements.githubResultsSection.classList.add('hidden');
+  githubElements.repoUrl.focus();
+});
+
+githubElements.viewOnGithub.addEventListener('click', () => {
+  if (currentGithubRepo) {
+    console.log(`🔗 Opening GitHub URL: ${currentGithubRepo.url}`);
+    chrome.tabs.create({ url: currentGithubRepo.url });
+  }
+}); 
