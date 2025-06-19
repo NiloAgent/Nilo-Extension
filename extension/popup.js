@@ -1288,15 +1288,17 @@ elements.viewOnSolscan.addEventListener('click', () => {
   }
 });
 
-// Auto-focus on input
-elements.mintAddress.focus(); 
-
 // Initialize mutual exclusivity - ensure both cards are visible at startup
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🎯 Initializing mutual exclusivity system...');
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🎯 Initializing extension...');
+  
+  // Load GitHub token from storage
+  await loadGithubToken();
+  
+  // Initialize mutual exclusivity system
   showTokenAnalysisCard();
   showGithubAnalysisCard();
-  console.log('✅ Both analysis cards initialized as visible');
+  console.log('✅ Extension initialization complete');
 });
 
 // If DOM is already loaded, run initialization immediately
@@ -1304,10 +1306,15 @@ if (document.readyState === 'loading') {
   // Wait for DOMContentLoaded
 } else {
   // DOM is already loaded
-  console.log('🎯 DOM already loaded, initializing mutual exclusivity system...');
-  showTokenAnalysisCard();
-  showGithubAnalysisCard();
-  console.log('✅ Both analysis cards initialized as visible');
+  console.log('🎯 DOM already loaded, initializing extension...');
+  
+  // Load GitHub token and initialize UI
+  (async () => {
+    await loadGithubToken();
+    showTokenAnalysisCard();
+    showGithubAnalysisCard();
+    console.log('✅ Extension initialization complete');
+  })();
 }
 
 // Add a global test function for debugging
@@ -1360,8 +1367,33 @@ console.log('🧪 - debugMutualExclusivity() - Show current state info');
 // ===== GITHUB REPOSITORY ANALYZER FUNCTIONALITY =====
 
 // GitHub API configuration
-const GITHUB_TOKEN = ''; // Add your GitHub personal access token here
 const GITHUB_API_BASE = 'https://api.github.com';
+
+// GitHub token management - securely stored in Chrome storage
+let GITHUB_TOKEN = null;
+
+// Load GitHub token from storage
+async function loadGithubToken() {
+  try {
+    const result = await chrome.storage.local.get(['githubToken']);
+    GITHUB_TOKEN = result.githubToken || null;
+    console.log('🔑 GitHub token loaded:', GITHUB_TOKEN ? 'Token available' : 'No token - using public API');
+  } catch (error) {
+    console.warn('⚠️ Could not load GitHub token from storage:', error);
+    GITHUB_TOKEN = null;
+  }
+}
+
+// Save GitHub token to storage
+async function saveGithubToken(token) {
+  try {
+    await chrome.storage.local.set({ githubToken: token });
+    GITHUB_TOKEN = token;
+    console.log('✅ GitHub token saved to storage');
+  } catch (error) {
+    console.error('❌ Could not save GitHub token to storage:', error);
+  }
+}
 
 // Current GitHub repo for button actions
 let currentGithubRepo = null;
@@ -1466,26 +1498,61 @@ async function makeGithubRequest(endpoint) {
   console.log(`🔍 Making GitHub API request: ${url}`);
   
   try {
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'Nilo-Extension'
-      }
-    });
+    // Build headers - only include Authorization if token is available
+    const headers = {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Nilo-Extension'
+    };
+    
+    // Add authorization header only if token is available and not empty
+    if (GITHUB_TOKEN && GITHUB_TOKEN.trim()) {
+      headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+      console.log('🔑 Using authenticated request');
+    } else {
+      console.log('🌐 Using public API (unauthenticated)');
+    }
+    
+    const response = await fetch(url, { headers });
     
     if (!response.ok) {
-      if (response.status === 404) {
+      if (response.status === 401) {
+        console.warn('🔒 GitHub API authentication failed - token may be invalid or expired');
+        // Clear invalid token from storage
+        if (GITHUB_TOKEN) {
+          await chrome.storage.local.remove(['githubToken']);
+          GITHUB_TOKEN = null;
+          console.log('🗑️ Cleared invalid token from storage');
+        }
+        throw new Error('GitHub API authentication failed. Please check your token or try without authentication.');
+      } else if (response.status === 404) {
         throw new Error('Repository not found');
       } else if (response.status === 403) {
-        throw new Error('API rate limit exceeded or access denied');
+        const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+        const rateLimitReset = response.headers.get('X-RateLimit-Reset');
+        
+        if (rateLimitRemaining === '0') {
+          const resetTime = new Date(parseInt(rateLimitReset) * 1000);
+          throw new Error(`GitHub API rate limit exceeded. Resets at ${resetTime.toLocaleTimeString()}`);
+        } else {
+          throw new Error('GitHub API access denied. Repository may be private or require authentication.');
+        }
+      } else if (response.status >= 500) {
+        throw new Error('GitHub API server error. Please try again later.');
       } else {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
       }
     }
     
     const data = await response.json();
     console.log('✅ GitHub API response received');
+    
+    // Log rate limit info for debugging
+    const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+    const rateLimitLimit = response.headers.get('X-RateLimit-Limit');
+    if (rateLimitRemaining && rateLimitLimit) {
+      console.log(`📊 Rate limit: ${rateLimitRemaining}/${rateLimitLimit} remaining`);
+    }
+    
     return data;
     
   } catch (error) {
