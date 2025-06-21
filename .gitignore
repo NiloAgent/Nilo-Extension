@@ -122,3 +122,4 @@ key.pem
 *.zip
 *.tar.gz
 *.rar 
+.vercel

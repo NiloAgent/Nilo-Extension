@@ -3,7 +3,8 @@
 // Bitquery API Configuration
 const BITQUERY_CONFIG = {
   EAP_ENDPOINT: 'https://streaming.bitquery.io/eap',
-  API_KEY: 'ory_at_YoW0aLryiXB0CVuzCHqJc-BVKohDim455mpOowrDpSU.n-9KUF5fjDMjnyXikYO5HBcHz7tqIOjtIua4nMuy8ZY'
+  // API key should be obtained from secure server endpoint
+  API_KEY: null // Remove hardcoded API key for security compliance
 };
 
 // Solana RPC Configuration - Using public endpoints that support CORS
@@ -539,37 +540,5 @@ async function updateSettings(settings, sendResponse) {
     sendResponse({ success: false, error: error.message });
   }
 }
-
-// Context menu integration
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === 'analyzeSolanaToken') {
-    const selectedText = info.selectionText?.trim();
-    if (selectedText && validateSolanaAddress(selectedText)) {
-      // Send message to content script to show analysis
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'showTokenAnalysis',
-        mintAddress: selectedText
-      });
-    }
-  }
-});
-
-// Create context menu on startup
-chrome.runtime.onStartup.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'analyzeSolanaToken',
-    title: 'Analyze Solana Token',
-    contexts: ['selection']
-  });
-});
-
-// Also create on install
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'analyzeSolanaToken',
-    title: 'Analyze Solana Token',
-    contexts: ['selection']
-  });
-});
 
 console.log('Solana Token Analyzer - Bitquery Edition background script loaded'); 

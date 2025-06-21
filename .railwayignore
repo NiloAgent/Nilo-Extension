@@ -1,0 +1,22 @@
+# Railway ignore file - exclude problematic files
+scripts/
+extension/
+src/
+pages/
+test-*.html
+debug-*.html
+*.md
+.git/
+.gitignore
+node_modules/
+.env
+.env.local
+.vercel/
+netlify/
+tailwind.config.js
+postcss.config.js
+next.config.js
+next-env.d.ts
+tsconfig.json
+components.json
+vercel.json 

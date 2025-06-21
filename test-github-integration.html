@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Integration Test - Nilo Extension</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #111111;
+            color: #ffffff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: #1c1c1c;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .button {
+            background: linear-gradient(135deg, #f7931a 0%, #e8850e 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(247, 147, 26, 0.4);
+        }
+        .result {
+            background: #252525;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐙 GitHub Integration Test</h1>
+            <p>Testing the GitHub API integration for Nilo Extension</p>
+        </div>
+
+        <div class="test-section">
+            <h3>GitHub API Test</h3>
+            <p>This will test the GitHub API integration using the same code as the extension.</p>
+            <button class="button" onclick="testGitHubAPI()">Test GitHub API</button>
+            <div id="github-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Trust Score Calculation Test</h3>
+            <p>Test the GitHub trust score calculation algorithm.</p>
+            <button class="button" onclick="testTrustScore()">Test Trust Score</button>
+            <div id="trust-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // GitHub API Configuration (same as extension)
+        const GITHUB_CONFIG = {
+            API_BASE: 'https://api.github.com',
+            TOKEN: 'YOUR_GITHUB_TOKEN_HERE',
+            DEFAULT_REPO: 'NiloAgent/Nilo-Extension'
+        };
+
+        // Same GitHub functions as in the extension
+        async function makeGitHubRequest(endpoint) {
+            console.log(`🐙 GitHub API Request: ${endpoint}`);
+            
+            try {
+                const response = await fetch(`${GITHUB_CONFIG.API_BASE}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${GITHUB_CONFIG.TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'User-Agent': 'Nilo-Extension-Test/1.0'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('📊 GitHub API Response:', data);
+                return data;
+            } catch (error) {
+                console.error('❌ GitHub API request failed:', error);
+                throw error;
+            }
+        }
+
+        async function getRepositoryInfo(repoOwner, repoName) {
+            const repo = await makeGitHubRequest(`/repos/${repoOwner}/${repoName}`);
+            return {
+                name: repo.full_name,
+                description: repo.description || 'No description provided',
+                stars: repo.stargazers_count,
+                language: repo.language || 'Unknown',
+                updated_at: repo.updated_at,
+                open_issues: repo.open_issues_count,
+                html_url: repo.html_url,
+                created_at: repo.created_at
+            };
+        }
+
+        async function getContributorsCount(repoOwner, repoName) {
+            try {
+                const contributors = await makeGitHubRequest(`/repos/${repoOwner}/${repoName}/contributors`);
+                return contributors.length;
+            } catch (error) {
+                console.warn('⚠️ Failed to fetch contributors:', error);
+                return 0;
+            }
+        }
+
+        function calculateGitHubTrustScore(repoData, contributorsCount) {
+            let score = 0;
+            const signals = [];
+            
+            // Signal 1: Stars
+            if (repoData.stars >= 30) {
+                score += 2;
+                signals.push(`✅ Good star count (${repoData.stars})`);
+            } else if (repoData.stars < 5) {
+                score -= 2;
+                signals.push(`⚠️ Low star count (${repoData.stars})`);
+            }
+            
+            // Signal 2: Contributors
+            if (contributorsCount >= 3) {
+                score += 2;
+                signals.push(`✅ Multiple contributors (${contributorsCount})`);
+            } else if (contributorsCount === 0) {
+                score -= 1;
+                signals.push(`⚠️ No contributor data available`);
+            } else {
+                score -= 1;
+                signals.push(`⚠️ Few contributors (${contributorsCount})`);
+            }
+            
+            // Signal 3: Last updated
+            const daysSinceUpdate = Math.floor((Date.now() - new Date(repoData.updated_at)) / (1000 * 60 * 60 * 24));
+            if (daysSinceUpdate <= 14) {
+                score += 2;
+                signals.push(`✅ Recently updated (${daysSinceUpdate} days ago)`);
+            } else if (daysSinceUpdate > 90) {
+                score -= 3;
+                signals.push(`⚠️ Not updated recently (${daysSinceUpdate} days ago)`);
+            }
+            
+            // Signal 4: Open issues
+            if (repoData.open_issues > 50) {
+                score -= 1;
+                signals.push(`⚠️ Many open issues (${repoData.open_issues})`);
+            }
+            
+            // Signal 5: Description
+            if (repoData.description && repoData.description !== 'No description provided') {
+                score += 1;
+                signals.push(`✅ Description provided`);
+            } else {
+                score -= 2;
+                signals.push(`⚠️ No description provided`);
+            }
+            
+            const normalizedScore = Math.max(0, Math.min(10, score + 5));
+            
+            let riskLevel, riskText;
+            if (normalizedScore >= 8) {
+                riskLevel = 'legit';
+                riskText = '✅ Legit Project';
+            } else if (normalizedScore >= 5) {
+                riskLevel = 'medium';
+                riskText = '⚠️ Medium Risk';
+            } else {
+                riskLevel = 'suspicious';
+                riskText = '❌ High Risk';
+            }
+            
+            return {
+                score: normalizedScore,
+                riskLevel,
+                riskText,
+                signals,
+                details: {
+                    stars: repoData.stars,
+                    contributors: contributorsCount,
+                    daysSinceUpdate,
+                    openIssues: repoData.open_issues
+                }
+            };
+        }
+
+        // Test functions
+        async function testGitHubAPI() {
+            const resultDiv = document.getElementById('github-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Testing GitHub API...\n';
+
+            try {
+                const [repoOwner, repoName] = GITHUB_CONFIG.DEFAULT_REPO.split('/');
+                
+                resultDiv.innerHTML += `📡 Fetching data for ${repoOwner}/${repoName}...\n`;
+                
+                const [repoData, contributorsCount] = await Promise.all([
+                    getRepositoryInfo(repoOwner, repoName),
+                    getContributorsCount(repoOwner, repoName)
+                ]);
+
+                resultDiv.innerHTML += `✅ Repository data fetched successfully!\n\n`;
+                resultDiv.innerHTML += `📊 Repository Info:\n`;
+                resultDiv.innerHTML += `   • Name: ${repoData.name}\n`;
+                resultDiv.innerHTML += `   • Description: ${repoData.description}\n`;
+                resultDiv.innerHTML += `   • Stars: ${repoData.stars}\n`;
+                resultDiv.innerHTML += `   • Language: ${repoData.language}\n`;
+                resultDiv.innerHTML += `   • Contributors: ${contributorsCount}\n`;
+                resultDiv.innerHTML += `   • Open Issues: ${repoData.open_issues}\n`;
+                resultDiv.innerHTML += `   • Last Updated: ${repoData.updated_at}\n`;
+                resultDiv.innerHTML += `   • URL: ${repoData.html_url}\n`;
+
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                resultDiv.innerHTML += `❌ Error: ${error.message}\n`;
+                resultDiv.className = 'result error';
+            }
+        }
+
+        async function testTrustScore() {
+            const resultDiv = document.getElementById('trust-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Testing trust score calculation...\n';
+
+            try {
+                const [repoOwner, repoName] = GITHUB_CONFIG.DEFAULT_REPO.split('/');
+                
+                const [repoData, contributorsCount] = await Promise.all([
+                    getRepositoryInfo(repoOwner, repoName),
+                    getContributorsCount(repoOwner, repoName)
+                ]);
+
+                const trustScore = calculateGitHubTrustScore(repoData, contributorsCount);
+
+                resultDiv.innerHTML += `🧮 Trust Score Calculation Complete!\n\n`;
+                resultDiv.innerHTML += `📈 Trust Score: ${trustScore.score}/10\n`;
+                resultDiv.innerHTML += `🎯 Risk Level: ${trustScore.riskText}\n\n`;
+                resultDiv.innerHTML += `📋 Analysis Signals:\n`;
+                trustScore.signals.forEach(signal => {
+                    resultDiv.innerHTML += `   ${signal}\n`;
+                });
+
+                resultDiv.innerHTML += `\n📊 Details:\n`;
+                resultDiv.innerHTML += `   • Stars: ${trustScore.details.stars}\n`;
+                resultDiv.innerHTML += `   • Contributors: ${trustScore.details.contributors}\n`;
+                resultDiv.innerHTML += `   • Days since update: ${trustScore.details.daysSinceUpdate}\n`;
+                resultDiv.innerHTML += `   • Open issues: ${trustScore.details.openIssues}\n`;
+
+                if (trustScore.score >= 8) {
+                    resultDiv.className = 'result success';
+                } else if (trustScore.score >= 5) {
+                    resultDiv.className = 'result warning';
+                } else {
+                    resultDiv.className = 'result error';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML += `❌ Error: ${error.message}\n`;
+                resultDiv.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html> 

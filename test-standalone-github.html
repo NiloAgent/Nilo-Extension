@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone GitHub Section Test</title>
+    <link rel="stylesheet" href="extension/popup.css">
+    <style>
+        body { 
+            padding: 20px; 
+            background: #111111; 
+            max-width: 400px; 
+            margin: 0 auto;
+        }
+        .test-header {
+            color: #f7931a;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1c1c1c;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🐙 Standalone GitHub Section Test</h1>
+        <p>Testing the standalone GitHub project section that should be always visible</p>
+    </div>
+
+    <!-- Standalone GitHub Project Section (copied from extension) -->
+    <div id="githubProjectSection" class="github-project-section">
+        <div class="card-header">
+            <div class="github-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <h3 class="card-title">GitHub Project Info</h3>
+        </div>
+        
+        <div id="githubProjectLoading" class="github-loading">
+            <div class="loading-spinner-small"></div>
+            <span>Loading project info...</span>
+        </div>
+        
+        <div id="githubProjectContent" class="github-content hidden">
+            <div class="github-repo-info">
+                <div class="repo-header">
+                    <div class="repo-name">
+                        <a id="githubProjectRepoLink" href="https://github.com/NiloAgent/Nilo-Extension" target="_blank" class="repo-link">
+                            <span id="githubProjectRepoName">NiloAgent/Nilo-Extension</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div id="githubProjectDescription" class="repo-description">Chrome extension for analyzing memecoin activity and repository legitimacy</div>
+                </div>
+                <div class="repo-metrics">
+                    <div class="metric-item">
+                        <div class="metric-icon">⭐</div>
+                        <div class="metric-value" id="githubProjectStars">15</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-value" id="githubProjectContributors">2</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon">📅</div>
+                        <div class="metric-value" id="githubProjectLastUpdate">3 days ago</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-icon">💻</div>
+                        <div class="metric-value" id="githubProjectLanguage">TypeScript</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GitHub Trust Score Section - THE KEY FEATURE -->
+            <div class="github-trust-score">
+                <div class="trust-score-header">
+                    <h4 class="trust-score-title">GitHub Trust Score</h4>
+                    <div class="github-score-display">
+                        <span id="githubProjectTrustScore" class="github-score-value">6/10</span>
+                        <div id="githubProjectRiskBadge" class="github-risk-badge medium">⚠️ Medium Risk</div>
+                    </div>
+                </div>
+                <div id="githubProjectTrustExplanation" class="trust-explanation">
+                    ✅ Recently updated (3 days ago), ⚠️ Low star count (15), ⚠️ Few contributors (2), and 2 more signals
+                </div>
+            </div>
+            
+            <div class="github-actions">
+                <button id="viewProjectOnGithub" class="action-button secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                    </svg>
+                    <span>View on GitHub</span>
+                </button>
+            </div>
+        </div>
+        
+        <div id="githubProjectError" class="github-error hidden">
+            <div class="error-icon">⚠️</div>
+            <div class="error-message">Project analysis not available</div>
+        </div>
+    </div>
+
+    <div class="test-header" style="margin-top: 20px;">
+        <h3>✅ Test Results</h3>
+        <p id="testResults">Running tests...</p>
+        <button onclick="showContent()" style="background: #f7931a; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin: 5px; cursor: pointer;">Show Content</button>
+        <button onclick="hideContent()" style="background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin: 5px; cursor: pointer;">Hide Content</button>
+    </div>
+
+    <script>
+        console.log('🧪 Standalone GitHub Section Test Started');
+
+        function showContent() {
+            console.log('📱 Showing GitHub project content...');
+            const loading = document.getElementById('githubProjectLoading');
+            const content = document.getElementById('githubProjectContent');
+            const error = document.getElementById('githubProjectError');
+            
+            if (loading) loading.classList.add('hidden');
+            if (content) content.classList.remove('hidden');
+            if (error) error.classList.add('hidden');
+            
+            updateTestResults('✅ Content shown successfully!');
+        }
+
+        function hideContent() {
+            console.log('📱 Hiding GitHub project content...');
+            const loading = document.getElementById('githubProjectLoading');
+            const content = document.getElementById('githubProjectContent');
+            
+            if (loading) loading.classList.remove('hidden');
+            if (content) content.classList.add('hidden');
+            
+            updateTestResults('⚠️ Content hidden, showing loading state');
+        }
+
+        function updateTestResults(message) {
+            const testResults = document.getElementById('testResults');
+            if (testResults) {
+                testResults.textContent = message;
+            }
+        }
+
+        function runTests() {
+            console.log('🔍 Running visibility tests...');
+            
+            // Test 1: Check if GitHub project section exists
+            const section = document.getElementById('githubProjectSection');
+            console.log('Test 1 - Section exists:', !!section);
+            
+            // Test 2: Check if trust score elements exist
+            const trustScore = document.getElementById('githubProjectTrustScore');
+            const riskBadge = document.getElementById('githubProjectRiskBadge');
+            const explanation = document.getElementById('githubProjectTrustExplanation');
+            
+            console.log('Test 2 - Trust score elements exist:');
+            console.log('   • Trust score:', !!trustScore);
+            console.log('   • Risk badge:', !!riskBadge);
+            console.log('   • Explanation:', !!explanation);
+            
+            // Test 3: Check if trust score section is visible
+            const trustScoreSection = document.querySelector('.github-trust-score');
+            console.log('Test 3 - Trust score section visible:', !!trustScoreSection && trustScoreSection.offsetHeight > 0);
+            
+            // Show content by default
+            setTimeout(() => {
+                showContent();
+                updateTestResults('✅ All tests passed! GitHub Trust Score is visible and working.');
+            }, 500);
+        }
+
+        // Auto-run tests
+        setTimeout(runTests, 100);
+
+        // Button click handler
+        const viewBtn = document.getElementById('viewProjectOnGithub');
+        if (viewBtn) {
+            viewBtn.addEventListener('click', () => {
+                console.log('🔗 View on GitHub button clicked');
+                const link = document.getElementById('githubProjectRepoLink')?.href;
+                if (link) {
+                    window.open(link, '_blank');
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

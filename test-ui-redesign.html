@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilo UI Redesign Test</title>
+    <link rel="stylesheet" href="extension/popup.css">
+    <style>
+        /* Override for demo purposes */
+        body {
+            width: 420px;
+            margin: 20px auto;
+            border: 1px solid #333;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .demo-note {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ff9900;
+            color: #000;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-note">🎨 UI Redesign Demo</div>
+    
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="brand-container">
+                <div class="logo-wrapper">
+                    <img src="extension/icons/logo.png" alt="Nilo Logo" class="logo-icon" width="28" height="28">
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-name">Nilo</h1>
+                    <p class="brand-subtitle">Solana Token Analyzer</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Search Card -->
+            <div class="search-card">
+                <div class="search-header">
+                    <h2 class="search-title">Analyze Token</h2>
+                    <p class="search-description">Enter a Solana token contract address to analyze</p>
+                </div>
+                <div class="search-form">
+                    <div class="input-container">
+                        <input 
+                            type="text" 
+                            placeholder="Enter Solana token contract address..."
+                            class="token-input"
+                            value="5PxGR7AiJwCNsgj9ZjSXsjpVPZFwkweuyvU8PavJpump"
+                        >
+                        <button class="analyze-button">
+                            <span>Analyze</span>
+                        </button>
+                    </div>
+                    <div class="input-help">
+                        <svg class="help-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9.09 9A3 3 0 0 1 12 6A3 3 0 0 1 15 9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 17H12.01" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Valid Solana mint address (32-44 base58 characters)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-container">
+                <!-- Trust Score Card -->
+                <div class="trust-score-card">
+                    <div class="card-header">
+                        <div class="trust-score-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 22S2 16 2 9C2 7 4 5 6 5C8 5 10 6 12 8C14 6 16 5 18 5C20 5 22 7 22 9C22 16 12 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="trust-score-content">
+                            <h3 class="card-title">Trust Score</h3>
+                            <div class="trust-score-display">
+                                <span class="trust-score-value">7.2</span>
+                                <div class="risk-badge medium">Medium</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trust-summary">
+                        Token has moderate risk factors. Authority controls present but holder distribution is reasonable.
+                    </div>
+                </div>
+
+                <!-- Token Information Card -->
+                <div class="token-info-card">
+                    <div class="card-header">
+                        <div class="token-header">
+                            <div class="token-identity">
+                                <h3 class="token-name">Sample Token</h3>
+                                <p class="token-symbol">SAMPLE</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="token-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">Total Supply</div>
+                            <div class="metric-value">1.00B</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Holders</div>
+                            <div class="metric-value">208</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authority Status Card -->
+                <div class="authority-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Authority Status</h3>
+                    </div>
+                    <div class="authority-grid">
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Mint Authority</span>
+                                <div class="authority-status danger">Active</div>
+                            </div>
+                        </div>
+                        <div class="authority-item">
+                            <div class="authority-info">
+                                <span class="authority-label">Freeze Authority</span>
+                                <div class="authority-status safe">Revoked</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Factors Card -->
+                <div class="risk-factors-card">
+                    <div class="card-header">
+                        <div class="risk-factors-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="card-title">Risk Factors</h3>
+                    </div>
+                    <div class="risk-factors-list">
+                        <div class="risk-factor">
+                            Mint authority is still active - new tokens can be created
+                        </div>
+                        <div class="risk-factor">
+                            Top 10 holders control 45% of total supply
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="actions-card">
+                    <button class="action-button secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>View on Solscan</span>
+                    </button>
+                    <button class="action-button primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21L16.514 16.506L21 21ZM18 10.5C18 15.194 14.194 19 9.5 19C4.806 19 1 15.194 1 10.5C1 5.806 4.806 2 9.5 2C14.194 2 18 5.806 18 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Analyze Another</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p class="footer-text">Powered by Bitquery & Solana RPC</p>
+        </footer>
+    </div>
+</body>
+</html> 

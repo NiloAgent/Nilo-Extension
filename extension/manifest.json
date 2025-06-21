@@ -1,55 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "Solana Token Analyzer - Bitquery Edition",
+  "name": "Nilo - Solana Token Security Analyzer",
   "version": "2.0.0",
-  "description": "Analyze Solana memecoin tokens for safety using comprehensive Bitquery data including holders, DEX trades, transfers, and creator analysis.",
+  "description": "Comprehensive security analysis for Solana tokens including holder distribution, trading activity, and risk assessment. Helps users identify potential scam tokens and make informed investment decisions.",
   "permissions": [
-    "storage",
-    "tabs",
-    "contextMenus"
+    "storage"
   ],
   "host_permissions": [
-    "https://streaming.bitquery.io/*",
+    "https://nilo-bvqwdhxs4-birticeks-projects.vercel.app/*",
     "https://api.mainnet-beta.solana.com/*",
-    "https://solana-api.projectserum.com/*",
     "https://rpc.ankr.com/*",
-    "https://solana.public-rpc.com/*",
-    "https://token.jup.ag/*",
-    "https://raw.githubusercontent.com/*",
-    "https://api.github.com/*"
+    "https://solana.public-rpc.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Analyze Solana Token"
+    "default_title": "Analyze Solana Token Security"
   },
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://solscan.io/*",
-        "https://solana.fm/*",
-        "https://dexscreener.com/*",
-        "https://raydium.io/*",
-        "https://pump.fun/*",
-        "https://birdeye.so/*",
-        "https://jupiter.ag/*"
-      ],
-      "js": ["content.js"],
-      "css": ["content.css"]
-    }
-  ],
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["popup.html", "popup.js", "popup.css"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  "privacy_policy": "https://github.com/your-username/nilo-extension/blob/main/PRIVACY.md"
 } 

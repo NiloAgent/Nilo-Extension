@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nilo - Modern UI Demo</title>
+    <style>
+        /* Include the modern CSS */
+        /* ===== MODERN NILO EXTENSION UI ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Modern Color System */
+            --color-primary: #f7931a;
+            --color-primary-hover: #e8850e;
+            --color-primary-light: rgba(247, 147, 26, 0.1);
+            --color-primary-glow: rgba(247, 147, 26, 0.3);
+            
+            /* Warm Dark Theme */
+            --color-background: #111111;
+            --color-surface: #1c1c1c;
+            --color-surface-elevated: #252525;
+            --color-surface-hover: #2a2a2a;
+            --color-border: #333333;
+            --color-border-light: #404040;
+            --color-border-focus: #f7931a;
+            
+            /* Text Colors */
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #e5e5e5;
+            --color-text-muted: #a1a1a1;
+            --color-text-accent: #f7931a;
+            
+            /* Status Colors */
+            --color-success: #10b981;
+            --color-success-bg: rgba(16, 185, 129, 0.1);
+            --color-warning: #f59e0b;
+            --color-warning-bg: rgba(245, 158, 11, 0.1);
+            --color-danger: #ef4444;
+            --color-danger-bg: rgba(239, 68, 68, 0.1);
+            
+            /* Spacing System */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            
+            /* Typography */
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            
+            /* Modern Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(247, 147, 26, 0.2);
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 20px;
+        }
+
+        body {
+            width: 420px;
+            min-height: 640px;
+            max-height: 800px;
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            background: var(--color-background);
+            color: var(--color-text-primary);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== APP CONTAINER ===== */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--color-background) 0%, #0f0f0f 100%);
+        }
+
+        /* ===== MODERN HEADER ===== */
+        .app-header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--space-5) var(--space-6);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(12px);
+            background: rgba(28, 28, 28, 0.95);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #e8850e 100%);
+            border-radius: var(--radius-lg);
+            border: 2px solid rgba(247, 147, 26, 0.3);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .logo-wrapper:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(247, 147, 26, 0.4);
+        }
+
+        .logo-icon {
+            border-radius: var(--radius-sm);
+            object-fit: contain;
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-name {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            letter-spacing: -0.5px;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--color-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .app-main {
+            flex: 1;
+            padding: var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        /* ===== MODERN CARD SYSTEM ===== */
+        .search-card,
+        .loading-card,
+        .trust-score-card,
+        .token-info-card,
+        .authority-card,
+        .risk-factors-card,
+        .actions-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            animation: slideUpIn 0.5s ease-out;
+        }
+
+        .search-card:hover,
+        .trust-score-card:hover,
+        .token-info-card:hover,
+        .authority-card:hover,
+        .risk-factors-card:hover {
+            border-color: var(--color-border-light);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-5) var(--space-6);
+            border-bottom: 1px solid var(--color-border);
+            background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface) 100%);
+        }
+
+        .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            letter-spacing: -0.2px;
+        }
+
+        /* ===== ENHANCED SEARCH CARD ===== */
+        .search-card {
+            background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-elevated) 100%);
+            border: 1px solid var(--color-border-light);
+        }
+
+        .search-header {
+            padding: var(--space-6) var(--space-6) var(--space-4);
+            text-align: center;
+        }
+
+        .search-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-2);
+            letter-spacing: -0.3px;
+        }
+
+        .search-description {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        .search-form {
+            padding: 0 var(--space-6) var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            height: 48px;
+        }
+
+        .token-input {
+            flex: 1;
+            height: 48px !important;
+            min-height: 48px;
+            max-height: 48px;
+            padding: 11px 16px !important;
+            margin: 0;
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 14px;
+            font-family: var(--font-family);
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box !important;
+            line-height: 22px;
+            vertical-align: baseline;
+        }
+
+        .token-input:focus {
+            border-color: var(--color-primary);
+            background: var(--color-surface);
+            box-shadow: 0 0 0 4px var(--color-primary-light), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .token-input::placeholder {
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        .analyze-button {
+            height: 48px !important;
+            min-height: 48px;
+            max-height: 48px;
+            padding: 11px 20px !important;
+            margin: 0;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #e8850e 100%);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 110px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box !important;
+            line-height: 22px;
+            vertical-align: baseline;
+        }
+
+        .analyze-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .analyze-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e8850e 0%, #d4770c 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+
+        .analyze-button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .analyze-button:active {
+            transform: translateY(0);
+        }
+
+        .analyze-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== ENHANCED TRUST SCORE CARD ===== */
+        .trust-score-card {
+            background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-elevated) 100%);
+            border: 2px solid var(--color-border-light);
+        }
+
+        .trust-score-card .card-header {
+            border-bottom: none;
+            padding-bottom: var(--space-4);
+            background: transparent;
+        }
+
+        .trust-score-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, rgba(247, 147, 26, 0.2) 100%);
+            border-radius: var(--radius-xl);
+            border: 2px solid var(--color-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .trust-score-content {
+            flex: 1;
+        }
+
+        .trust-score-display {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-top: var(--space-2);
+        }
+
+        .trust-score-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 800;
+            color: var(--color-text-primary);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .risk-badge {
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .risk-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .risk-badge.low {
+            background: linear-gradient(135deg, var(--color-success-bg) 0%, rgba(16, 185, 129, 0.2) 100%);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .risk-badge.medium {
+            background: linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(245, 158, 11, 0.2) 100%);
+            color: var(--color-warning);
+            border: 1px solid var(--color-warning);
+        }
+
+        .risk-badge.high {
+            background: linear-gradient(135deg, var(--color-danger-bg) 0%, rgba(239, 68, 68, 0.2) 100%);
+            color: var(--color-danger);
+            border: 1px solid var(--color-danger);
+        }
+
+        .trust-summary {
+            padding: 0 var(--space-6) var(--space-5);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        /* ===== ENHANCED TOKEN INFO CARD ===== */
+        .token-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            flex: 1;
+        }
+
+        .token-image {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-xl);
+            border: 3px solid var(--color-border-light);
+            object-fit: cover;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .token-image:hover {
+            transform: scale(1.1);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .token-identity {
+            flex: 1;
+        }
+
+        .token-name {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-1);
+            letter-spacing: -0.2px;
+        }
+
+        .token-symbol {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--color-primary-light);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+        }
+
+        .token-metrics {
+            padding: var(--space-5) var(--space-6);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: var(--space-4);
+            background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface-hover) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .metric-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            margin-bottom: var(--space-2);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-lg);
+            font-weight: 800;
+            color: var(--color-text-primary);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== ENHANCED AUTHORITY CARD ===== */
+        .authority-grid {
+            padding: var(--space-5) var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .authority-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-4) var(--space-5);
+            background: linear-gradient(135deg, var(--color-surface-elevated) 0%, var(--color-surface-hover) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .authority-item:hover {
+            transform: translateX(4px);
+            border-color: var(--color-border-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .authority-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .authority-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .authority-status {
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            transition: all 0.2s ease;
+        }
+
+        .authority-status:hover {
+            transform: scale(1.05);
+        }
+
+        .authority-status.safe {
+            background: linear-gradient(135deg, var(--color-success-bg) 0%, rgba(16, 185, 129, 0.2) 100%);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .authority-status.danger {
+            background: linear-gradient(135deg, var(--color-danger-bg) 0%, rgba(239, 68, 68, 0.2) 100%);
+            color: var(--color-danger);
+            border: 1px solid var(--color-danger);
+        }
+
+        /* ===== ENHANCED RISK FACTORS CARD ===== */
+        .risk-factors-card {
+            border: 2px solid var(--color-danger);
+            background: linear-gradient(135deg, var(--color-danger-bg) 0%, rgba(239, 68, 68, 0.05) 100%);
+        }
+
+        .risk-factors-card .card-header {
+            border-bottom: none;
+            background: transparent;
+        }
+
+        .risk-factors-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .risk-factors-list {
+            padding: 0 var(--space-6) var(--space-5);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .risk-factor {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: linear-gradient(135deg, var(--color-danger-bg) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border: 1px solid var(--color-danger);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-sm);
+            color: var(--color-danger);
+            line-height: 1.6;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .risk-factor:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .risk-factor::before {
+            content: "⚠️";
+            font-size: var(--font-size-base);
+            flex-shrink: 0;
+            margin-top: 1px;
+            animation: bounce 2s infinite;
+        }
+
+        /* ===== ENHANCED ACTIONS CARD ===== */
+        .actions-card {
+            padding: var(--space-5) var(--space-6);
+            display: flex;
+            gap: var(--space-4);
+            background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-elevated) 100%);
+        }
+
+        .action-button {
+            flex: 1;
+            padding: var(--space-4) var(--space-5);
+            border: 2px solid;
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button.primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #e8850e 100%);
+            border-color: var(--color-primary);
+            color: white;
+        }
+
+        .action-button.primary:hover {
+            background: linear-gradient(135deg, #e8850e 0%, #d4770c 100%);
+            border-color: #e8850e;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+
+        .action-button.secondary {
+            background: transparent;
+            border-color: var(--color-border-light);
+            color: var(--color-text-secondary);
+        }
+
+        .action-button.secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text-primary);
+            background: var(--color-surface-elevated);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-green {
+            color: var(--color-success) !important;
+        }
+
+        .text-red {
+            color: var(--color-danger) !important;
+        }
+
+        .text-yellow {
+            color: var(--color-warning) !important;
+        }
+
+        /* ===== ENHANCED ANIMATIONS ===== */
+        @keyframes slideUpIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .results-container > * {
+            animation: slideUpIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .results-container > *:nth-child(1) { animation-delay: 0.1s; }
+        .results-container > *:nth-child(2) { animation-delay: 0.2s; }
+        .results-container > *:nth-child(3) { animation-delay: 0.3s; }
+        .results-container > *:nth-child(4) { animation-delay: 0.4s; }
+        .results-container > *:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Demo-specific styles */
+        .demo-container {
+            max-width: 420px;
+            margin: 0 auto;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .demo-note {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+        }
+
+        .demo-note strong {
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body style="background: #0a0a0a; padding: 20px;">
+    <div class="demo-note">
+        <strong>Modern UI Demo</strong><br>
+        Warm dark theme with #f7931a accent
+    </div>
+
+    <div class="demo-container">
+        <div class="app-container">
+            <!-- Header Section -->
+            <header class="app-header">
+                <div class="brand-container">
+                    <div class="logo-wrapper">
+                        <div style="width: 28px; height: 28px; background: linear-gradient(45deg, #ffffff, #f7931a); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #111; font-size: 12px;">N</div>
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-name">Nilo</h1>
+                        <p class="brand-subtitle">Solana Token Analyzer</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="app-main">
+                <!-- Search Card -->
+                <div class="search-card">
+                    <div class="search-header">
+                        <h2 class="search-title">Analyze Token</h2>
+                        <p class="search-description">Enter a Solana token contract address to analyze</p>
+                    </div>
+                    <div class="search-form">
+                        <div class="input-container">
+                            <input 
+                                type="text" 
+                                placeholder="Enter Solana token contract address..."
+                                class="token-input"
+                                value="So11111111111111111111111111111111111111112"
+                            >
+                            <button class="analyze-button">
+                                <span class="btn-text">Analyze</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-container">
+                    <!-- Trust Score Card -->
+                    <div class="trust-score-card">
+                        <div class="card-header">
+                            <div class="trust-score-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 22S2 16 2 9C2 7 4 5 6 5C8 5 10 6 12 8C14 6 16 5 18 5C20 5 22 7 22 9C22 16 12 22 12 22Z" stroke="#f7931a" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="trust-score-content">
+                                <h3 class="card-title">Trust Score</h3>
+                                <div class="trust-score-display">
+                                    <span class="trust-score-value">85</span>
+                                    <div class="risk-badge low">LOW RISK</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="trust-summary">
+                            This token shows strong fundamentals with decentralized authority structure and healthy distribution patterns. No significant risk factors detected.
+                        </div>
+                    </div>
+
+                    <!-- Token Information Card -->
+                    <div class="token-info-card">
+                        <div class="card-header">
+                            <div class="token-header">
+                                <div style="width: 52px; height: 52px; background: linear-gradient(45deg, #f7931a, #e8850e); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 18px; border: 3px solid #404040;">₿</div>
+                                <div class="token-identity">
+                                    <h3 class="token-name">Wrapped SOL</h3>
+                                    <p class="token-symbol">WSOL</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="token-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">Total Supply</div>
+                                <div class="metric-value">2.1M</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Holders</div>
+                                <div class="metric-value">15,432</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Authority Status Card -->
+                    <div class="authority-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Authority Status</h3>
+                        </div>
+                        <div class="authority-grid">
+                            <div class="authority-item">
+                                <div class="authority-info">
+                                    <span class="authority-label">Mint Authority</span>
+                                    <div class="authority-status safe">DISABLED</div>
+                                </div>
+                            </div>
+                            <div class="authority-item">
+                                <div class="authority-info">
+                                    <span class="authority-label">Freeze Authority</span>
+                                    <div class="authority-status safe">DISABLED</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Factors Card (Example with medium risk) -->
+                    <div class="risk-factors-card" style="border-color: #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);">
+                        <div class="card-header">
+                            <div class="risk-factors-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <h3 class="card-title">Risk Factors</h3>
+                        </div>
+                        <div class="risk-factors-list">
+                            <div class="risk-factor" style="color: #f59e0b; border-color: #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);">
+                                Large holder concentration (top 10 holders own 45% of supply)
+                            </div>
+                            <div class="risk-factor" style="color: #f59e0b; border-color: #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);">
+                                Token launched less than 30 days ago
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Card -->
+                    <div class="actions-card">
+                        <button class="action-button secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>View on Solscan</span>
+                        </button>
+                        <button class="action-button primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 21L16.514 16.506L21 21ZM18 10.5C18 15.194 14.194 19 9.5 19C4.806 19 1 15.194 1 10.5C1 5.806 4.806 2 9.5 2C14.194 2 18 5.806 18 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Analyze Another</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive demo behavior
+        document.querySelector('.analyze-button').addEventListener('click', function() {
+            this.style.transform = 'translateY(-4px)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 200);
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.metric-item, .authority-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px) scale(1.02)';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Add click animation to action buttons
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html> 

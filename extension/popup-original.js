@@ -4,6 +4,14 @@ console.log('🚀🚀🚀 EXTENSION LOADED - VERSION:', EXTENSION_VERSION);
 console.log('🚀🚀🚀 TIMESTAMP:', new Date().toISOString());
 console.log('🚀🚀🚀 CACHE BUSTER:', Math.random());
 
+// Backend API Configuration - Secure proxy endpoint
+const API_CONFIG = {
+  // Development endpoint (update for production)
+  BACKEND_ENDPOINT: 'http://localhost:3000/api/analyze-token',
+  // Production endpoint (will be updated after Vercel deployment)
+  // BACKEND_ENDPOINT: 'https://your-app.vercel.app/api/analyze-token',
+};
+
 // Solana RPC Configuration - Using public endpoints that support CORS
 const SOLANA_RPC_ENDPOINTS = [
   'https://api.mainnet-beta.solana.com',
@@ -247,20 +255,33 @@ function showResults() {
 
 // API Functions
 async function makeBitqueryRequest(query, variables = {}) {
-  console.log('🔍 Using Backend Integration for Bitquery Request');
+  console.log('🔍 Bitquery EAP Request:', { query: query.substring(0, 100) + '...', variables });
   
-  // Use the backend integration function instead of direct API calls
-  if (typeof analyzeTokenViaBackend === 'function') {
-    // For token analysis, use the backend integration
-    if (variables.mintAddress) {
-      console.log('🔄 Calling backend integration for token analysis');
-      const result = await analyzeTokenViaBackend(variables.mintAddress);
-      return result;
-    }
+  const response = await fetch(BITQUERY_CONFIG.EAP_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${BITQUERY_CONFIG.API_KEY}`
+    },
+    body: JSON.stringify({
+      query,
+      variables
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  const data = await response.json();
+  console.log('📊 Bitquery EAP Response:', data);
   
-  // Fallback error if backend integration not available
-  throw new Error('Backend integration not available. Please check the backend-integration.js file is loaded.');
+  if (data.errors && data.errors.length > 0) {
+    console.error('❌ GraphQL errors:', data.errors);
+    throw new Error(`GraphQL errors: ${data.errors.map(e => e.message).join(', ')}`);
+  }
+
+  return data.data;
 }
 
 async function makeSolanaRPCRequest(method, params) {
@@ -1209,16 +1230,15 @@ async function getMetaplexMetadata(mintAddress) {
 
 // Updated main execution function
 async function analyzeTokenMain() {
-  console.log('🚀 Token Analysis Started');
+  const mintAddress = elements.mintAddress.value.trim() || TEST_TOKEN; // Use test token if empty
   
-  // Set mutual exclusivity state
-  setTokenAnalyzing(true);
-  
-  const mintAddress = elements.mintAddress.value.trim();
+  if (!mintAddress) {
+    showError('Please enter a token mint address');
+    return;
+  }
   
   if (!validateSolanaAddress(mintAddress)) {
     showError('Please enter a valid Solana token mint address');
-    setTokenAnalyzing(false);
     return;
   }
   
@@ -1231,88 +1251,18 @@ async function analyzeTokenMain() {
     // Store the current mint address for the Solscan button
     currentMintAddress = mintAddress;
     
-    // Check if backend integration is available
-    if (typeof analyzeTokenViaBackend !== 'function') {
-      throw new Error('Backend integration not available. Please check your extension setup.');
-    }
+    // Use the new simplified analysis approach
+    await updateTokenInfo(mintAddress);
     
-    // Use the backend integration for analysis
-    console.log('🔄 Calling backend integration...');
-    const analysisData = await analyzeTokenViaBackend(mintAddress);
+    console.log('✅ Analysis complete');
     
-    console.log('📊 Backend analysis result:', analysisData);
-    
-    // Update UI with the analysis results
-    if (analysisData) {
-      // Update token info
-      safeUpdateElement('tokenName', analysisData.metadata?.name || 'Unknown Token');
-      safeUpdateElement('tokenSymbol', analysisData.metadata?.symbol || 'N/A');
-      
-      // Update token image if available
-      const tokenImage = document.getElementById('tokenImage');
-      if (tokenImage && analysisData.metadata?.logoURI) {
-        tokenImage.src = analysisData.metadata.logoURI;
-        tokenImage.classList.remove('hidden');
-      } else if (tokenImage) {
-        tokenImage.classList.add('hidden');
-      }
-      
-      // Update supply info
-      if (analysisData.metadata?.supply && analysisData.metadata?.decimals) {
-        const formattedSupply = formatSupply(analysisData.metadata.supply, analysisData.metadata.decimals);
-        safeUpdateElement('tokenSupply', formattedSupply);
-      } else {
-        safeUpdateElement('tokenSupply', 'N/A');
-      }
-      
-      // Update holder count
-      const holderCount = analysisData.holders?.length || 0;
-      safeUpdateElement('holderCount', holderCount.toLocaleString());
-      
-      // Update authorities
-      safeUpdateElement('mintAuthority', analysisData.metadata?.mintAuthority ? 
-        (analysisData.metadata.mintAuthority === 'null' ? '🔒 Disabled' : '⚠️ Active') : 'N/A');
-      safeUpdateElement('freezeAuthority', analysisData.metadata?.freezeAuthority ? 
-        (analysisData.metadata.freezeAuthority === 'null' ? '🔒 Disabled' : '⚠️ Active') : 'N/A');
-      
-      // Calculate and display trust score
-      const riskFactors = [];
-      let trustScore = 85; // Base score
-      
-      // Adjust score based on available data
-      if (analysisData.metadata?.mintAuthority && analysisData.metadata.mintAuthority !== 'null') {
-        riskFactors.push('Mint authority is active');
-        trustScore -= 20;
-      }
-      
-      if (analysisData.metadata?.freezeAuthority && analysisData.metadata.freezeAuthority !== 'null') {
-        riskFactors.push('Freeze authority is active');
-        trustScore -= 15;
-      }
-      
-      if (holderCount < 10) {
-        riskFactors.push('Very few token holders');
-        trustScore -= 25;
-      } else if (holderCount < 100) {
-        riskFactors.push('Limited token distribution');
-        trustScore -= 10;
-      }
-      
-      // Update trust score display
-      updateTrustScore({ trustScore, riskFactors }, 'success');
-      
-      console.log('✅ Analysis complete');
-      showResults();
-    } else {
-      throw new Error('No analysis data received from backend');
-    }
+    showResults();
     
   } catch (error) {
     console.error('❌ Analysis failed:', error);
     showError(`Analysis failed: ${error.message}`);
   } finally {
     hideLoading();
-    setTokenAnalyzing(false);
   }
 }
 

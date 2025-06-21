@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub UI Debug - Nilo Extension</title>
+    <link rel="stylesheet" href="extension/popup.css">
+    <style>
+        body { 
+            padding: 20px; 
+            background: #111111;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        .debug-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px dashed #333;
+            border-radius: 8px;
+        }
+        .debug-title {
+            color: #f7931a;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1 style="color: #ffffff; text-align: center;">GitHub UI Debug Test</h1>
+        
+        <div class="debug-section">
+            <div class="debug-title">Test 1: GitHub Card (Hidden by Default)</div>
+            <div id="githubCard" class="github-card hidden">
+                <div class="card-header">
+                    <div class="github-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">GitHub Repository</h3>
+                </div>
+                <div id="githubLoadingState" class="github-loading">
+                    <div class="loading-spinner-small"></div>
+                    <span>Analyzing repository...</span>
+                </div>
+                <div id="githubContent" class="github-content hidden">
+                    <div class="github-repo-info">
+                        <div class="repo-header">
+                            <div class="repo-name">
+                                <a id="githubRepoLink" href="#" target="_blank" class="repo-link">
+                                    <span id="githubRepoName">--</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                        <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11M15 3H21V9M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div id="githubDescription" class="repo-description">--</div>
+                        </div>
+                        <div class="repo-metrics">
+                            <div class="metric-item">
+                                <div class="metric-icon">⭐</div>
+                                <div class="metric-value" id="githubStars">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">👥</div>
+                                <div class="metric-value" id="githubContributors">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">📅</div>
+                                <div class="metric-value" id="githubLastUpdate">--</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-icon">💻</div>
+                                <div class="metric-value" id="githubLanguage">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- THIS IS THE TRUST SCORE SECTION THAT SHOULD BE VISIBLE -->
+                    <div class="github-trust-score">
+                        <div class="trust-score-header">
+                            <h4 class="trust-score-title">GitHub Trust Score</h4>
+                            <div class="github-score-display">
+                                <span id="githubTrustScore" class="github-score-value">--</span>
+                                <div id="githubRiskBadge" class="github-risk-badge">--</div>
+                            </div>
+                        </div>
+                        <div id="githubTrustExplanation" class="trust-explanation">
+                            Analyzing repository signals...
+                        </div>
+                    </div>
+                    
+                    <div class="github-actions">
+                        <button id="viewOnGithub" class="action-button secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.477 2 2 6.463 2 11.97C2 16.447 4.865 20.197 8.839 21.439C9.339 21.529 9.52 21.222 9.52 20.958C9.52 20.721 9.51 19.989 9.51 19.204C6.726 19.825 6.139 17.965 6.139 17.965C5.685 16.896 4.997 16.592 4.997 16.592C4.04 15.845 5.073 15.859 5.073 15.859C6.137 15.937 6.669 16.963 6.669 16.963C7.579 18.586 9.057 18.191 9.54 17.941C9.631 17.34 9.889 16.948 10.175 16.706C7.95 16.46 5.62 15.636 5.62 11.567C5.62 10.556 6.007 9.726 6.688 9.08C6.578 8.834 6.239 7.859 6.792 6.481C6.792 6.481 7.652 6.214 9.5 7.463C10.336 7.25 11.22 7.143 12.1 7.14C12.98 7.143 13.864 7.25 14.7 7.463C16.548 6.214 17.408 6.481 17.408 6.481C17.961 7.859 17.622 8.834 17.512 9.08C18.193 9.726 18.58 10.556 18.58 11.567C18.58 15.646 16.25 16.457 14.02 16.696C14.372 16.996 14.68 17.586 14.68 18.486C14.68 19.844 14.67 20.937 14.67 21.262C14.67 21.529 14.851 21.839 15.36 21.732C19.333 20.488 22.2 16.74 22.2 12.27C22.2 6.463 17.723 2 12.2 2H12Z" fill="currentColor"/>
+                            </svg>
+                            <span>View on GitHub</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="githubErrorState" class="github-error hidden">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-message">Repository analysis not available</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="debug-section">
+            <div class="debug-title">Test 2: Show GitHub Card</div>
+            <button onclick="showGitHubCard()" style="background: #f7931a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Show GitHub Card</button>
+        </div>
+
+        <div class="debug-section">
+            <div class="debug-title">Test 3: Populate with Test Data</div>
+            <button onclick="populateTestData()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Populate Test Data</button>
+        </div>
+
+        <div class="debug-section">
+            <div class="debug-title">Test 4: Show Trust Score</div>
+            <button onclick="showTrustScore()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Show Trust Score</button>
+        </div>
+    </div>
+
+    <script>
+        function showGitHubCard() {
+            console.log('🔍 Showing GitHub card...');
+            const githubCard = document.getElementById('githubCard');
+            const githubContent = document.getElementById('githubContent');
+            const githubLoadingState = document.getElementById('githubLoadingState');
+            
+            if (githubCard) {
+                githubCard.classList.remove('hidden');
+                console.log('✅ GitHub card shown');
+            }
+            
+            if (githubLoadingState) {
+                githubLoadingState.classList.add('hidden');
+            }
+            
+            if (githubContent) {
+                githubContent.classList.remove('hidden');
+                console.log('✅ GitHub content shown');
+            }
+        }
+
+        function populateTestData() {
+            console.log('🧪 Populating test data...');
+            
+            // Repository info
+            const githubRepoName = document.getElementById('githubRepoName');
+            const githubDescription = document.getElementById('githubDescription');
+            const githubStars = document.getElementById('githubStars');
+            const githubContributors = document.getElementById('githubContributors');
+            const githubLastUpdate = document.getElementById('githubLastUpdate');
+            const githubLanguage = document.getElementById('githubLanguage');
+            const githubRepoLink = document.getElementById('githubRepoLink');
+            
+            if (githubRepoName) githubRepoName.textContent = 'NiloAgent/Nilo-Extension';
+            if (githubDescription) githubDescription.textContent = 'Chrome extension for analyzing memecoin activity';
+            if (githubStars) githubStars.textContent = '15';
+            if (githubContributors) githubContributors.textContent = '2';
+            if (githubLastUpdate) githubLastUpdate.textContent = '3 days ago';
+            if (githubLanguage) githubLanguage.textContent = 'TypeScript';
+            if (githubRepoLink) githubRepoLink.href = 'https://github.com/NiloAgent/Nilo-Extension';
+            
+            console.log('✅ Repository data populated');
+        }
+
+        function showTrustScore() {
+            console.log('🎯 Showing trust score...');
+            
+            const githubTrustScore = document.getElementById('githubTrustScore');
+            const githubRiskBadge = document.getElementById('githubRiskBadge');
+            const githubTrustExplanation = document.getElementById('githubTrustExplanation');
+            
+            if (githubTrustScore) {
+                githubTrustScore.textContent = '6/10';
+                console.log('✅ Trust score updated');
+            }
+            
+            if (githubRiskBadge) {
+                githubRiskBadge.textContent = '⚠️ Medium Risk';
+                githubRiskBadge.className = 'github-risk-badge medium';
+                console.log('✅ Risk badge updated');
+            }
+            
+            if (githubTrustExplanation) {
+                githubTrustExplanation.textContent = '✅ Recently updated (3 days ago), ⚠️ Low star count (15), ⚠️ Few contributors (2)';
+                console.log('✅ Explanation updated');
+            }
+            
+            console.log('🎉 Trust score section should now be visible!');
+        }
+
+        // Auto-run tests
+        setTimeout(() => {
+            console.log('🔄 Auto-running tests...');
+            showGitHubCard();
+            setTimeout(() => {
+                populateTestData();
+                setTimeout(() => {
+                    showTrustScore();
+                }, 1000);
+            }, 500);
+        }, 1000);
+    </script>
+</body>
+</html> 
