@@ -21,16 +21,15 @@ const BITQUERY_CONFIG = {
   API_KEY: process.env.BITQUERY_API_KEY
 };
 
-// Solscan API Configuration - Now with your free API key!
+// Solscan API Configuration - Using your free API key!
 const SOLSCAN_CONFIG = {
-  API_URL: process.env.SOLSCAN_API_URL || 'https://public-api.solscan.io',
   PRO_API_URL: 'https://pro-api.solscan.io/v2.0',
   API_KEY: process.env.SOLSCAN_API_KEY // Your free Solscan API key
 };
 
 console.log('🚀 Nilo Backend Server Starting...');
 console.log('📡 Bitquery API Key:', BITQUERY_CONFIG.API_KEY ? 'Configured ✅' : 'Missing ❌');
-console.log('📡 Solscan API URL:', SOLSCAN_CONFIG.API_URL ? 'Configured ✅' : 'Missing ❌');
+console.log('📡 Solscan Pro API URL:', SOLSCAN_CONFIG.PRO_API_URL);
 console.log('🔑 Solscan API Key:', SOLSCAN_CONFIG.API_KEY ? 'Configured ✅ (Free Plan)' : 'Missing ❌');
 
 // Helper function to make HTTP requests
