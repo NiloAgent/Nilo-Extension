@@ -847,13 +847,14 @@ app.get('/health', (req, res) => {
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Nilo Backend API - Migrated to Railway! 🚄',
+    message: 'Nilo Backend API - Migrated to Railway! 🚄 (Updated with real APIs)',
     endpoints: [
       'GET /api/test - Test endpoint',
       'POST /api/analyze-token - Analyze Solana token',
       'GET /health - Health check'
     ],
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '2.0-real-apis'
   });
 });
 
