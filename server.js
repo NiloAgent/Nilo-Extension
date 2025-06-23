@@ -21,17 +21,17 @@ const BITQUERY_CONFIG = {
   API_KEY: process.env.BITQUERY_API_KEY
 };
 
-// Solscan API Configuration - NOTE: Pro API is paid ($199+/month for holders)
+// Solscan API Configuration - Now with your free API key!
 const SOLSCAN_CONFIG = {
   API_URL: process.env.SOLSCAN_API_URL || 'https://public-api.solscan.io',
   PRO_API_URL: 'https://pro-api.solscan.io/v2.0',
-  PRO_API_KEY: process.env.SOLSCAN_PRO_API_KEY // Only if user has paid subscription
+  API_KEY: process.env.SOLSCAN_API_KEY // Your free Solscan API key
 };
 
 console.log('🚀 Nilo Backend Server Starting...');
 console.log('📡 Bitquery API Key:', BITQUERY_CONFIG.API_KEY ? 'Configured ✅' : 'Missing ❌');
 console.log('📡 Solscan API URL:', SOLSCAN_CONFIG.API_URL ? 'Configured ✅' : 'Missing ❌');
-console.log('💰 Solscan Pro API Key:', SOLSCAN_CONFIG.PRO_API_KEY ? 'Configured ✅ ($199+/month)' : 'Missing ❌ (Free tier)');
+console.log('🔑 Solscan API Key:', SOLSCAN_CONFIG.API_KEY ? 'Configured ✅ (Free Plan)' : 'Missing ❌');
 
 // Helper function to make HTTP requests
 function makeRequest(options, postData) {
@@ -54,54 +54,80 @@ function makeRequest(options, postData) {
   });
 }
 
-// Enhanced holders fetching with multiple free alternatives
-async function fetchHoldersAlternatives(tokenAddress) {
-  console.log(`📡 Fetching holders using free alternatives for token: ${tokenAddress}`);
+// Enhanced Solscan holders fetching with your API key
+async function fetchSolscanHolders(tokenAddress) {
+  console.log(`📡 Fetching holders from Solscan API for token: ${tokenAddress}`);
   
   let holdersData = [];
   let holdersCount = 0;
-  let dataSource = 'estimated';
+  let dataSource = 'solscan-free';
   let error = null;
 
-  // Method 1: Try Solscan Pro API if we have the key (paid)
-  if (SOLSCAN_CONFIG.PRO_API_KEY) {
+  // Method 1: Try Solscan v2 API with your free API key
+  if (SOLSCAN_CONFIG.API_KEY) {
     try {
-      console.log('💰 Trying Solscan Pro API (paid subscription)...');
-      const proApiUrl = `${SOLSCAN_CONFIG.PRO_API_URL}/token/holders?address=${tokenAddress}&page_size=20`;
+      console.log('🔑 Using Solscan v2 API with your free API key...');
+      const apiUrl = `${SOLSCAN_CONFIG.PRO_API_URL}/token/holders?address=${tokenAddress}&page_size=20`;
       
-      const response = await fetch(proApiUrl, {
+      console.log(`🔗 Solscan API URL: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         headers: {
-          'token': SOLSCAN_CONFIG.PRO_API_KEY,
-          'Accept': 'application/json'
+          'token': SOLSCAN_CONFIG.API_KEY,
+          'Accept': 'application/json',
+          'User-Agent': 'Nilo-Extension/2.0'
         },
-        timeout: 10000
+        timeout: 15000
       });
+      
+      console.log(`📡 Solscan API Response Status: ${response.status}`);
       
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.data && data.data.items) {
-          holdersData = data.data.items.map((holder, index) => ({
+        console.log('✅ Raw Solscan API response:', JSON.stringify(data, null, 2));
+        
+        if (data.success && data.data) {
+          const items = data.data.items || [];
+          const total = data.data.total || 0;
+          
+          holdersData = items.map((holder, index) => ({
             rank: holder.rank || index + 1,
-            address: holder.owner || holder.address,
+            address: holder.owner || holder.address || `Holder-${index + 1}`,
             balance: holder.amount || '0',
-            percentage: holder.percentage || 0,
-            decimals: holder.decimals || 9
+            percentage: holder.percentage || '0',
+            decimals: holder.decimals || 9,
+            value: holder.value || 0
           }));
-          holdersCount = data.data.total || holdersData.length;
-          dataSource = 'solscan-pro';
-          console.log(`✅ Got ${holdersData.length} holders from Solscan Pro API`);
-          return { holders: holdersData, count: holdersCount, source: dataSource, error: null };
+          
+          holdersCount = total;
+          dataSource = 'solscan-api';
+          console.log(`✅ Got ${holdersData.length} holders from Solscan API (${holdersCount} total)`);
+          
+          return {
+            holders: holdersData,
+            count: holdersCount,
+            source: dataSource,
+            error: null
+          };
+        } else {
+          console.log('⚠️ Solscan API returned success=false or no data:', data);
+          error = data.message || 'API returned no data';
         }
+      } else {
+        const errorText = await response.text();
+        console.log(`❌ Solscan API returned status ${response.status}: ${errorText}`);
+        error = `HTTP ${response.status}: ${errorText}`;
       }
-    } catch (proError) {
-      console.log('⚠️ Solscan Pro API failed:', proError.message);
+    } catch (apiError) {
+      console.error('❌ Solscan API request failed:', apiError.message);
+      error = `API request failed: ${apiError.message}`;
     }
   }
 
-  // Method 2: Use Bitquery GraphQL to get top holders (free but limited)
-  if (BITQUERY_CONFIG.API_KEY) {
+  // Method 2: Fallback to Bitquery GraphQL estimation (if Solscan fails)
+  if (!holdersData.length && BITQUERY_CONFIG.API_KEY) {
     try {
-      console.log('🔍 Trying Bitquery GraphQL for holders...');
+      console.log('🔍 Fallback: Trying Bitquery GraphQL for holders estimation...');
       
       const holdersQuery = `
         query ($tokenAddress: String!) {
@@ -169,71 +195,73 @@ async function fetchHoldersAlternatives(tokenAddress) {
             decimals: 9
           }));
           
-          holdersCount = Math.max(holderMap.size, 100); // Estimate total holders
+          holdersCount = Math.max(holderMap.size, 100);
           dataSource = 'bitquery-estimated';
+          error = 'Solscan API failed, using Bitquery estimation';
           console.log(`✅ Estimated ${holdersData.length} top holders from Bitquery`);
-          return { holders: holdersData, count: holdersCount, source: dataSource, error: null };
         }
       }
     } catch (bitqueryError) {
-      console.log('⚠️ Bitquery holders estimation failed:', bitqueryError.message);
+      console.log('⚠️ Bitquery holders estimation also failed:', bitqueryError.message);
     }
   }
 
-  // Method 3: Use Solana RPC to get largest token accounts (free)
-  try {
-    console.log('🔗 Trying Solana RPC getLargestAccounts...');
-    
-    const rpcResponse = await fetch('https://api.mainnet-beta.solana.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getTokenLargestAccounts',
-        params: [tokenAddress]
-      })
-    });
-    
-    const rpcData = await rpcResponse.json();
-    
-    if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
-      const accounts = rpcData.result.value;
+  // Method 3: Last resort - Solana RPC getLargestAccounts
+  if (!holdersData.length) {
+    try {
+      console.log('🔗 Last resort: Trying Solana RPC getLargestAccounts...');
       
-      if (accounts.length > 0) {
-        const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+      const rpcResponse = await fetch('https://api.mainnet-beta.solana.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTokenLargestAccounts',
+          params: [tokenAddress]
+        })
+      });
+      
+      const rpcData = await rpcResponse.json();
+      
+      if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
+        const accounts = rpcData.result.value;
         
-        holdersData = accounts.slice(0, 20).map((account, index) => ({
-          rank: index + 1,
-          address: account.address || `Account-${index + 1}`,
-          balance: account.amount || '0',
-          percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
-          decimals: account.decimals || 9
-        }));
-        
-        holdersCount = Math.max(accounts.length, 50); // Conservative estimate
-        dataSource = 'solana-rpc';
-        console.log(`✅ Got ${holdersData.length} largest accounts from Solana RPC`);
-        return { holders: holdersData, count: holdersCount, source: dataSource, error: null };
+        if (accounts.length > 0) {
+          const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+          
+          holdersData = accounts.slice(0, 20).map((account, index) => ({
+            rank: index + 1,
+            address: account.address || `Account-${index + 1}`,
+            balance: account.amount || '0',
+            percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
+            decimals: account.decimals || 9
+          }));
+          
+          holdersCount = Math.max(accounts.length, 50);
+          dataSource = 'solana-rpc';
+          error = 'Solscan API failed, using Solana RPC data';
+          console.log(`✅ Got ${holdersData.length} largest accounts from Solana RPC`);
+        }
       }
+    } catch (rpcError) {
+      console.log('⚠️ Solana RPC getLargestAccounts also failed:', rpcError.message);
     }
-  } catch (rpcError) {
-    console.log('⚠️ Solana RPC getLargestAccounts failed:', rpcError.message);
   }
 
-  // Method 4: Generate demo data with disclaimer (fallback)
-  console.log('⚠️ All holder data sources failed, using demo data...');
-  
-  holdersData = [
-    { rank: 1, address: 'Demo1111111111111111111111111111111111111', balance: '100000', percentage: '10.0000', decimals: 9 },
-    { rank: 2, address: 'Demo2222222222222222222222222222222222222', balance: '50000', percentage: '5.0000', decimals: 9 },
-    { rank: 3, address: 'Demo3333333333333333333333333333333333333', balance: '30000', percentage: '3.0000', decimals: 9 },
-    { rank: 4, address: 'Demo4444444444444444444444444444444444444', balance: '20000', percentage: '2.0000', decimals: 9 },
-    { rank: 5, address: 'Demo5555555555555555555555555555555555555', balance: '15000', percentage: '1.5000', decimals: 9 }
-  ];
-  holdersCount = 250; // Demo estimate
-  dataSource = 'demo-fallback';
-  error = 'Real holder data requires Solscan Pro API ($199+/month). Showing demo data.';
+  // Final fallback: Demo data
+  if (!holdersData.length) {
+    console.log('⚠️ All methods failed, using demo data...');
+    
+    holdersData = [
+      { rank: 1, address: 'Demo1111111111111111111111111111111111111', balance: '100000', percentage: '10.0000', decimals: 9 },
+      { rank: 2, address: 'Demo2222222222222222222222222222222222222', balance: '50000', percentage: '5.0000', decimals: 9 },
+      { rank: 3, address: 'Demo3333333333333333333333333333333333333', balance: '30000', percentage: '3.0000', decimals: 9 }
+    ];
+    holdersCount = 250;
+    dataSource = 'demo-fallback';
+    error = 'All data sources failed. Using demo data.';
+  }
   
   return {
     holders: holdersData,
@@ -252,7 +280,7 @@ app.get('/api/test', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     bitqueryConfigured: !!BITQUERY_CONFIG.API_KEY,
     solscanConfigured: !!SOLSCAN_CONFIG.API_URL,
-    solscanProConfigured: !!SOLSCAN_CONFIG.PRO_API_KEY
+    solscanApiKeyConfigured: !!SOLSCAN_CONFIG.API_KEY
   });
 });
 
@@ -495,16 +523,16 @@ app.post('/api/analyze-token', async (req, res) => {
       console.warn('⚠️ No data returned from Bitquery API - using RPC data only');
     }
 
-    // Get holder data using free alternatives
-    console.log('📡 Fetching holder data using free alternatives...');
-    const holdersResult = await fetchHoldersAlternatives(tokenAddress);
+    // Get holder data using Solscan API with your key
+    console.log('📡 Fetching holder data using Solscan API...');
+    const holdersResult = await fetchSolscanHolders(tokenAddress);
     const holdersData = holdersResult.holders;
     const holdersCount = holdersResult.count;
     const holdersSource = holdersResult.source;
     const holdersError = holdersResult.error;
     
     if (holdersError) {
-      console.log('⚠️ Holders data limitation:', holdersError);
+      console.log('⚠️ Holders data note:', holdersError);
     } else {
       console.log(`✅ Successfully fetched ${holdersData.length} holders (${holdersCount} total) from ${holdersSource}`);
     }
@@ -569,7 +597,7 @@ app.post('/api/analyze-token', async (req, res) => {
         holders: holdersSource
       },
       holdersError: holdersError,
-      notice: holdersSource === 'demo-fallback' ? 'Real holder data requires Solscan Pro API ($199+/month). Using demo data.' : null
+      solscanApiUsed: !!SOLSCAN_CONFIG.API_KEY
     });
 
   } catch (error) {
