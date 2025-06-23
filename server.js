@@ -72,6 +72,30 @@ async function fetchTokenHolders(tokenAddress) {
   let dataSource = 'unknown';
   let error = null;
 
+  // TEMPORARY: Force demo data to test extension (skip API calls due to fetch() issue)
+  console.log('🚨 TEMPORARY: Forcing demo data to test extension...');
+  holdersData = [
+    { rank: 1, address: 'Demo1holder...xyz', balance: '1000000000', percentage: '15.5', decimals: 9, value: 1000000000 },
+    { rank: 2, address: 'Demo2holder...abc', balance: '800000000', percentage: '12.2', decimals: 9, value: 800000000 },
+    { rank: 3, address: 'Demo3holder...def', balance: '600000000', percentage: '9.1', decimals: 9, value: 600000000 },
+    { rank: 4, address: 'Demo4holder...ghi', balance: '500000000', percentage: '7.6', decimals: 9, value: 500000000 },
+    { rank: 5, address: 'Demo5holder...jkl', balance: '400000000', percentage: '6.1', decimals: 9, value: 400000000 }
+  ];
+  holdersCount = 96; // Simulate the 96 holders we found in direct tests
+  dataSource = 'demo-test';
+  error = 'TEMPORARY: Using demo data to test extension (fetch() not available on Railway)';
+  
+  console.log(`🎯 Final result: ${holdersData.length} holders, source: ${dataSource}`);
+  
+  return {
+    holders: holdersData,
+    count: holdersCount,
+    source: dataSource,
+    error: error
+  };
+
+  /* COMMENTED OUT API CALLS DUE TO FETCH() ISSUE - WILL FIX LATER
+  
   // Method 1: Use Helius getTokenAccounts API (CORRECT METHOD for getting ALL holders)
   if (HELIUS_CONFIG.API_KEY) {
     try {
@@ -97,15 +121,19 @@ async function fetchTokenHolders(tokenAddress) {
           }
         };
         
-        const response = await fetch(HELIUS_CONFIG.RPC_URL, {
+        // Use https module instead of fetch for Railway compatibility
+        const url = new URL(HELIUS_CONFIG.RPC_URL);
+        const options = {
+          hostname: url.hostname,
+          port: url.port || 443,
+          path: url.pathname + url.search,
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
-        });
+          headers: { 'Content-Type': 'application/json' }
+        };
         
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`📡 Helius page ${page} response status: ${response.status}`);
+        try {
+          const data = await makeRequest(options, JSON.stringify(requestBody));
+          console.log(`📡 Helius page ${page} response received`);
           
           if (data.result?.token_accounts && Array.isArray(data.result.token_accounts)) {
             const accounts = data.result.token_accounts;
@@ -130,9 +158,8 @@ async function fetchTokenHolders(tokenAddress) {
             console.log(`⚠️ Page ${page} returned no token_accounts`);
             hasMoreData = false;
           }
-        } else {
-          const errorText = await response.text();
-          console.log(`❌ Helius page ${page} failed with status ${response.status}: ${errorText}`);
+        } catch (pageError) {
+          console.log(`❌ Helius page ${page} failed: ${pageError.message}`);
           hasMoreData = false;
         }
       }
@@ -299,15 +326,19 @@ async function fetchTokenHolders(tokenAddress) {
         params: [tokenAddress]
       };
       
-      const response = await fetch(HELIUS_CONFIG.RPC_URL, {
+      // Use https module instead of fetch for Railway compatibility
+      const url = new URL(HELIUS_CONFIG.RPC_URL);
+      const options = {
+        hostname: url.hostname,
+        port: url.port || 443,
+        path: url.pathname + url.search,
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
+        headers: { 'Content-Type': 'application/json' }
+      };
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Helius largest accounts response:', JSON.stringify(data, null, 2));
+      try {
+        const data = await makeRequest(options, JSON.stringify(requestBody));
+        console.log('✅ Helius largest accounts response received');
         
         if (data.result?.value && Array.isArray(data.result.value)) {
           const accounts = data.result.value;
@@ -331,6 +362,8 @@ async function fetchTokenHolders(tokenAddress) {
             console.log(`✅ Got ${holdersData.length} largest accounts (limited data)`);
           }
         }
+      } catch (heliusError) {
+        console.log('⚠️ Helius largest accounts failed:', heliusError.message);
       }
     } catch (fallbackError) {
       console.log('⚠️ Helius largest accounts fallback failed:', fallbackError.message);
@@ -342,18 +375,23 @@ async function fetchTokenHolders(tokenAddress) {
     try {
       console.log('🔗 Final fallback: Standard Solana RPC...');
       
-      const rpcResponse = await fetch('https://api.mainnet-beta.solana.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getTokenLargestAccounts',
-          params: [tokenAddress]
-        })
-      });
+      const requestBody = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTokenLargestAccounts',
+        params: [tokenAddress]
+      };
       
-      const rpcData = await rpcResponse.json();
+      // Use https module instead of fetch for Railway compatibility
+      const options = {
+        hostname: 'api.mainnet-beta.solana.com',
+        port: 443,
+        path: '/',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      };
+      
+      const rpcData = await makeRequest(options, JSON.stringify(requestBody));
       
       if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
         const accounts = rpcData.result.value;
