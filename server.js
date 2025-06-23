@@ -73,7 +73,7 @@ async function fetchTokenHolders(tokenAddress) {
   let error = null;
 
   // TEMPORARY: Force demo data to test extension (skip API calls due to fetch() issue)
-  console.log('🚨 TEMPORARY: Forcing demo data to test extension...');
+  console.log('🚨 TEMPORARY: Forcing demo data to test extension - VERSION 2...');
   holdersData = [
     { rank: 1, address: 'Demo1holder...xyz', balance: '1000000000', percentage: '15.5', decimals: 9, value: 1000000000 },
     { rank: 2, address: 'Demo2holder...abc', balance: '800000000', percentage: '12.2', decimals: 9, value: 800000000 },
@@ -82,10 +82,10 @@ async function fetchTokenHolders(tokenAddress) {
     { rank: 5, address: 'Demo5holder...jkl', balance: '400000000', percentage: '6.1', decimals: 9, value: 400000000 }
   ];
   holdersCount = 96; // Simulate the 96 holders we found in direct tests
-  dataSource = 'demo-test';
+  dataSource = 'demo-test-v2';
   error = 'TEMPORARY: Using demo data to test extension (fetch() not available on Railway)';
   
-  console.log(`🎯 Final result: ${holdersData.length} holders, source: ${dataSource}`);
+  console.log(`🎯 DEMO DATA FORCED: ${holdersData.length} holders, count: ${holdersCount}, source: ${dataSource}`);
   
   return {
     holders: holdersData,
