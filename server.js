@@ -669,6 +669,30 @@ app.post('/api/analyze-token', async (req, res) => {
   }
 });
 
+// Debug endpoint to check environment variables
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    message: 'Environment Variables Debug',
+    timestamp: new Date().toISOString(),
+    environmentVariables: {
+      BITQUERY_API_KEY: process.env.BITQUERY_API_KEY ? 'SET' : 'NOT SET',
+      HELIUS_API_KEY: process.env.HELIUS_API_KEY ? 'SET' : 'NOT SET',
+      HELIUS_RPC_URL: process.env.HELIUS_RPC_URL ? 'SET' : 'NOT SET',
+      SOLSCAN_API_KEY: process.env.SOLSCAN_API_KEY ? 'SET' : 'NOT SET'
+    },
+    configValues: {
+      BITQUERY_API_KEY: BITQUERY_CONFIG.API_KEY ? 'CONFIGURED' : 'MISSING',
+      HELIUS_API_KEY: HELIUS_CONFIG.API_KEY ? 'CONFIGURED' : 'MISSING',
+      HELIUS_RPC_URL: HELIUS_CONFIG.RPC_URL ? 'CONFIGURED' : 'MISSING',
+      SOLSCAN_API_KEY: SOLSCAN_CONFIG.API_KEY ? 'CONFIGURED' : 'MISSING'
+    },
+    actualValues: {
+      HELIUS_API_KEY: HELIUS_CONFIG.API_KEY ? HELIUS_CONFIG.API_KEY.substring(0, 20) + '...' : 'MISSING',
+      HELIUS_RPC_URL: HELIUS_CONFIG.RPC_URL ? HELIUS_CONFIG.RPC_URL.substring(0, 50) + '...' : 'MISSING'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
