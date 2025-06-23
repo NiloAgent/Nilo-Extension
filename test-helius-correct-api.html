@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Correct Helius & Bitquery APIs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-title {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(45deg, #ff5252, #ff7979);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .info {
+            color: #2196f3;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        
+        .holder-item {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Test Correct Helius & Bitquery APIs</h1>
+        
+        <div class="test-section">
+            <div class="test-title">🎯 Direct Helius getTokenAccounts API Test</div>
+            <p>Testing the CORRECT Helius API that can fetch ALL token holders (not just top 20)</p>
+            <button onclick="testHeliusTokenAccounts()">Test Helius getTokenAccounts</button>
+            <div id="helius-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">📊 Bitquery V2 BalanceUpdates API Test</div>
+            <p>Testing the CORRECT Bitquery V2 API for Solana token holders</p>
+            <button onclick="testBitqueryV2()">Test Bitquery V2 BalanceUpdates</button>
+            <div id="bitquery-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🚄 Railway Backend with Corrected APIs</div>
+            <p>Testing the Railway backend with the newly implemented correct APIs</p>
+            <button onclick="testRailwayBackend()">Test Railway Backend</button>
+            <div id="railway-result" class="result-box" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🔍 Compare All Methods</div>
+            <p>Compare all methods side by side to see which ones work</p>
+            <button onclick="compareAllMethods()">Compare All Methods</button>
+            <div id="compare-result" class="result-box" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const TEST_TOKEN = '7PhGXavnYTRacRzG4p1ymNz4Vw6Yj9HaKidzBP4fpump';
+        const HELIUS_API_KEY = '5e390e48-0c3b-4dd8-89a9-7736ce552c38';
+        const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
+        const RAILWAY_BACKEND = 'https://nilo-backend-production.up.railway.app';
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            element.innerHTML += `<span class="${colorClass}">[${timestamp}] ${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        function clear(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+        
+        async function testHeliusTokenAccounts() {
+            clear('helius-result');
+            log('helius-result', '🔥 Testing Helius getTokenAccounts API...', 'info');
+            log('helius-result', `Token: ${TEST_TOKEN}`, 'info');
+            
+            try {
+                let totalHolders = [];
+                let page = 1;
+                const maxPages = 3; // Limit for demo
+                
+                while (page <= maxPages) {
+                    log('helius-result', `📄 Fetching page ${page}...`, 'info');
+                    
+                    const requestBody = {
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenAccounts',
+                        params: {
+                            page: page,
+                            limit: 1000,
+                            displayOptions: {},
+                            mint: TEST_TOKEN
+                        }
+                    };
+                    
+                    const response = await fetch(HELIUS_RPC_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.result?.token_accounts && Array.isArray(data.result.token_accounts)) {
+                            const accounts = data.result.token_accounts;
+                            log('helius-result', `✅ Page ${page}: Found ${accounts.length} accounts`, 'success');
+                            
+                            if (accounts.length === 0) {
+                                log('helius-result', '📭 No more accounts, stopping pagination', 'info');
+                                break;
+                            }
+                            
+                            // Filter accounts with positive balances
+                            const validAccounts = accounts.filter(acc => parseFloat(acc.amount || 0) > 0);
+                            totalHolders.push(...validAccounts);
+                            log('helius-result', `📊 Valid holders on page ${page}: ${validAccounts.length}`, 'info');
+                            
+                            // Show sample account
+                            if (validAccounts.length > 0) {
+                                const sample = validAccounts[0];
+                                log('helius-result', `📝 Sample: Owner=${sample.owner?.substring(0,8)}..., Amount=${sample.amount}`, 'info');
+                            }
+                            
+                            if (accounts.length < 1000) {
+                                log('helius-result', '📋 Less than 1000 accounts returned, this is the last page', 'info');
+                                break;
+                            }
+                            
+                            page++;
+                        } else {
+                            log('helius-result', `❌ Page ${page}: No token_accounts in response`, 'error');
+                            break;
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        log('helius-result', `❌ Page ${page} failed: ${response.status} - ${errorText}`, 'error');
+                        break;
+                    }
+                }
+                
+                if (totalHolders.length > 0) {
+                    log('helius-result', `🎉 TOTAL HOLDERS FOUND: ${totalHolders.length}`, 'success');
+                    
+                    // Sort by balance
+                    totalHolders.sort((a, b) => parseFloat(b.amount || 0) - parseFloat(a.amount || 0));
+                    
+                    // Show top 5 holders
+                    log('helius-result', '🏆 TOP 5 HOLDERS:', 'success');
+                    totalHolders.slice(0, 5).forEach((holder, i) => {
+                        log('helius-result', `${i+1}. ${holder.owner?.substring(0,12)}... - ${holder.amount} tokens`, 'success');
+                    });
+                    
+                    log('helius-result', `✅ SUCCESS! Helius getTokenAccounts API works perfectly!`, 'success');
+                } else {
+                    log('helius-result', '❌ No holders found', 'error');
+                }
+                
+            } catch (error) {
+                log('helius-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testBitqueryV2() {
+            clear('bitquery-result');
+            log('bitquery-result', '📊 Testing Bitquery V2 BalanceUpdates API...', 'info');
+            
+            // Note: This requires a Bitquery API key which would need to be configured
+            log('bitquery-result', '⚠️ This test requires Bitquery API key configuration in the backend', 'warning');
+            log('bitquery-result', '📝 The query would look like this:', 'info');
+            
+            const sampleQuery = `
+query GetTokenHolders($tokenAddress: String!) {
+  Solana {
+    BalanceUpdates(
+      orderBy: {descendingByField: "BalanceUpdate_Holding_maximum"}
+      where: {
+        BalanceUpdate: {
+          Currency: {MintAddress: {is: $tokenAddress}}
+        }
+        Transaction: {Result: {Success: true}}
+      }
+      limit: {count: 100}
+    ) {
+      BalanceUpdate {
+        Currency {
+          Name
+          MintAddress
+          Symbol
+          Decimals
+        }
+        Account {
+          Address
+        }
+        Holding: PostBalance(maximum: Block_Slot, selectWhere: {gt: "0"})
+      }
+    }
+  }
+}`;
+            
+            log('bitquery-result', sampleQuery, 'info');
+            log('bitquery-result', '🔗 This will be tested via the Railway backend if Bitquery key is configured', 'info');
+        }
+        
+        async function testRailwayBackend() {
+            clear('railway-result');
+            log('railway-result', '🚄 Testing Railway backend with corrected APIs...', 'info');
+            log('railway-result', `Backend URL: ${RAILWAY_BACKEND}`, 'info');
+            log('railway-result', `Token: ${TEST_TOKEN}`, 'info');
+            
+            try {
+                const response = await fetch(`${RAILWAY_BACKEND}/api/analyze-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tokenAddress: TEST_TOKEN })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('railway-result', `✅ Backend responded successfully!`, 'success');
+                    log('railway-result', `📊 Response overview:`, 'info');
+                    log('railway-result', `• Token: ${data.name} (${data.symbol})`, 'info');
+                    log('railway-result', `• Holders Count: ${data.holdersCount}`, 'info');
+                    log('railway-result', `• Holders Source: ${data.holdersDataSource}`, 'info');
+                    log('railway-result', `• Risk Score: ${data.riskScore}/10`, 'info');
+                    
+                    if (data.holders && data.holders.length > 0) {
+                        log('railway-result', `🎉 HOLDERS DATA FOUND: ${data.holders.length} detailed holders`, 'success');
+                        log('railway-result', `🏆 Top 3 holders:`, 'success');
+                        data.holders.slice(0, 3).forEach((holder, i) => {
+                            log('railway-result', `${i+1}. ${holder.address?.substring(0,12)}... - ${holder.balance} (${holder.percentage}%)`, 'success');
+                        });
+                    } else {
+                        log('railway-result', `⚠️ No detailed holders data in response`, 'warning');
+                    }
+                    
+                    if (data.dataSources) {
+                        log('railway-result', `📡 Data sources:`, 'info');
+                        Object.entries(data.dataSources).forEach(([source, status]) => {
+                            const icon = status === 'available' ? '✅' : '❌';
+                            log('railway-result', `${icon} ${source}: ${status}`, status === 'available' ? 'success' : 'warning');
+                        });
+                    }
+                    
+                    if (data.holdersError) {
+                        log('railway-result', `⚠️ Holders note: ${data.holdersError}`, 'warning');
+                    }
+                    
+                } else {
+                    const errorText = await response.text();
+                    log('railway-result', `❌ Backend error: ${response.status} - ${errorText}`, 'error');
+                }
+                
+            } catch (error) {
+                log('railway-result', `❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function compareAllMethods() {
+            clear('compare-result');
+            log('compare-result', '🔍 Comparing all holder fetching methods...', 'info');
+            
+            const results = {
+                helius_token_accounts: { name: 'Helius getTokenAccounts', status: 'pending', holders: 0 },
+                helius_largest: { name: 'Helius getTokenLargestAccounts', status: 'pending', holders: 0 },
+                solana_rpc: { name: 'Standard Solana RPC', status: 'pending', holders: 0 },
+                railway_backend: { name: 'Railway Backend (Combined)', status: 'pending', holders: 0 }
+            };
+            
+            // Test 1: Helius getTokenAccounts (CORRECT method)
+            try {
+                log('compare-result', '1️⃣ Testing Helius getTokenAccounts...', 'info');
+                const response = await fetch(HELIUS_RPC_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenAccounts',
+                        params: { page: 1, limit: 1000, mint: TEST_TOKEN }
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result?.token_accounts) {
+                        results.helius_token_accounts.status = 'success';
+                        results.helius_token_accounts.holders = data.result.token_accounts.filter(acc => parseFloat(acc.amount || 0) > 0).length;
+                        log('compare-result', `✅ Helius getTokenAccounts: ${results.helius_token_accounts.holders} holders`, 'success');
+                    } else {
+                        results.helius_token_accounts.status = 'no_data';
+                        log('compare-result', `⚠️ Helius getTokenAccounts: No data`, 'warning');
+                    }
+                } else {
+                    results.helius_token_accounts.status = 'error';
+                    log('compare-result', `❌ Helius getTokenAccounts: HTTP ${response.status}`, 'error');
+                }
+            } catch (e) {
+                results.helius_token_accounts.status = 'error';
+                log('compare-result', `❌ Helius getTokenAccounts: ${e.message}`, 'error');
+            }
+            
+            // Test 2: Helius getTokenLargestAccounts (LIMITED method)
+            try {
+                log('compare-result', '2️⃣ Testing Helius getTokenLargestAccounts...', 'info');
+                const response = await fetch(HELIUS_RPC_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenLargestAccounts',
+                        params: [TEST_TOKEN]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result?.value) {
+                        results.helius_largest.status = 'success';
+                        results.helius_largest.holders = data.result.value.length;
+                        log('compare-result', `✅ Helius getTokenLargestAccounts: ${results.helius_largest.holders} holders (limited)`, 'success');
+                    } else {
+                        results.helius_largest.status = 'no_data';
+                        log('compare-result', `⚠️ Helius getTokenLargestAccounts: No data`, 'warning');
+                    }
+                } else {
+                    results.helius_largest.status = 'error';
+                    log('compare-result', `❌ Helius getTokenLargestAccounts: HTTP ${response.status}`, 'error');
+                }
+            } catch (e) {
+                results.helius_largest.status = 'error';
+                log('compare-result', `❌ Helius getTokenLargestAccounts: ${e.message}`, 'error');
+            }
+            
+            // Test 3: Standard Solana RPC
+            try {
+                log('compare-result', '3️⃣ Testing Standard Solana RPC...', 'info');
+                const response = await fetch('https://api.mainnet-beta.solana.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'getTokenLargestAccounts',
+                        params: [TEST_TOKEN]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result?.value) {
+                        results.solana_rpc.status = 'success';
+                        results.solana_rpc.holders = data.result.value.length;
+                        log('compare-result', `✅ Standard Solana RPC: ${results.solana_rpc.holders} holders (limited)`, 'success');
+                    } else {
+                        results.solana_rpc.status = 'no_data';
+                        log('compare-result', `⚠️ Standard Solana RPC: No data`, 'warning');
+                    }
+                } else {
+                    results.solana_rpc.status = 'error';
+                    log('compare-result', `❌ Standard Solana RPC: HTTP ${response.status}`, 'error');
+                }
+            } catch (e) {
+                results.solana_rpc.status = 'error';
+                log('compare-result', `❌ Standard Solana RPC: ${e.message}`, 'error');
+            }
+            
+            // Test 4: Railway Backend
+            try {
+                log('compare-result', '4️⃣ Testing Railway Backend...', 'info');
+                const response = await fetch(`${RAILWAY_BACKEND}/api/analyze-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tokenAddress: TEST_TOKEN })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.holdersCount) {
+                        results.railway_backend.status = 'success';
+                        results.railway_backend.holders = data.holdersCount;
+                        results.railway_backend.source = data.holdersDataSource;
+                        log('compare-result', `✅ Railway Backend: ${results.railway_backend.holders} holders (${data.holdersDataSource})`, 'success');
+                    } else {
+                        results.railway_backend.status = 'no_data';
+                        log('compare-result', `⚠️ Railway Backend: No holders count`, 'warning');
+                    }
+                } else {
+                    results.railway_backend.status = 'error';
+                    log('compare-result', `❌ Railway Backend: HTTP ${response.status}`, 'error');
+                }
+            } catch (e) {
+                results.railway_backend.status = 'error';
+                log('compare-result', `❌ Railway Backend: ${e.message}`, 'error');
+            }
+            
+            // Summary
+            log('compare-result', '\n🏁 COMPARISON SUMMARY:', 'info');
+            log('compare-result', '================================', 'info');
+            
+            Object.entries(results).forEach(([key, result]) => {
+                const statusIcon = result.status === 'success' ? '✅' : result.status === 'no_data' ? '⚠️' : '❌';
+                const holderInfo = result.holders > 0 ? ` - ${result.holders} holders` : '';
+                const sourceInfo = result.source ? ` (${result.source})` : '';
+                log('compare-result', `${statusIcon} ${result.name}: ${result.status}${holderInfo}${sourceInfo}`, 
+                    result.status === 'success' ? 'success' : result.status === 'no_data' ? 'warning' : 'error');
+            });
+            
+            // Recommendation
+            log('compare-result', '\n💡 RECOMMENDATION:', 'info');
+            if (results.helius_token_accounts.status === 'success' && results.helius_token_accounts.holders > 0) {
+                log('compare-result', '✅ Use Helius getTokenAccounts - it provides the most comprehensive holder data!', 'success');
+            } else if (results.railway_backend.status === 'success' && results.railway_backend.holders > 0) {
+                log('compare-result', '✅ Railway Backend is working - check which internal method succeeded', 'success');
+            } else {
+                log('compare-result', '⚠️ All methods have limitations - configure Helius or Bitquery API keys for best results', 'warning');
+            }
+        }
+        
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            console.log('🔥 Correct APIs Test Page Loaded');
+            console.log('📝 Ready to test the CORRECT Helius getTokenAccounts and Bitquery V2 APIs');
+        };
+    </script>
+</body>
+</html> 
