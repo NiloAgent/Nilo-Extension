@@ -64,6 +64,8 @@ function makeRequest(options, postData) {
 // Enhanced Helius + Solana RPC holders fetching
 async function fetchTokenHolders(tokenAddress) {
   console.log(`🔥 Fetching holders using Helius + Solana RPC for token: ${tokenAddress}`);
+  console.log(`🔑 HELIUS_CONFIG.API_KEY: ${HELIUS_CONFIG.API_KEY ? 'SET' : 'NOT SET'}`);
+  console.log(`🌐 HELIUS_CONFIG.RPC_URL: ${HELIUS_CONFIG.RPC_URL}`);
   
   let holdersData = [];
   let holdersCount = 0;
@@ -74,16 +76,20 @@ async function fetchTokenHolders(tokenAddress) {
   if (HELIUS_CONFIG.API_KEY) {
     try {
       console.log('🔥 Using Helius RPC for token largest accounts...');
+      console.log(`📡 Making request to: ${HELIUS_CONFIG.RPC_URL}`);
+      
+      const requestBody = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTokenLargestAccounts',
+        params: [tokenAddress]
+      };
+      console.log(`📦 Request body: ${JSON.stringify(requestBody)}`);
       
       const response = await fetch(HELIUS_CONFIG.RPC_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getTokenLargestAccounts',
-          params: [tokenAddress]
-        })
+        body: JSON.stringify(requestBody)
       });
       
       console.log(`📡 Helius RPC Response Status: ${response.status}`);
@@ -94,10 +100,12 @@ async function fetchTokenHolders(tokenAddress) {
         
         if (data.result?.value && Array.isArray(data.result.value)) {
           const accounts = data.result.value;
+          console.log(`🎉 Found ${accounts.length} accounts from Helius!`);
           
           if (accounts.length > 0) {
             // Calculate total supply from all accounts
             const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+            console.log(`📊 Total supply calculated: ${totalSupply}`);
             
             holdersData = accounts.slice(0, 50).map((account, index) => ({
               rank: index + 1,
@@ -110,7 +118,8 @@ async function fetchTokenHolders(tokenAddress) {
             
             holdersCount = Math.max(accounts.length, 100); // Estimate total holders
             dataSource = 'helius-rpc';
-            console.log(`✅ Got ${holdersData.length} holders from Helius RPC (${holdersCount} estimated total)`);
+            console.log(`✅ Processed ${holdersData.length} holders from Helius RPC (${holdersCount} estimated total)`);
+            console.log(`🏆 Sample holder data:`, JSON.stringify(holdersData.slice(0, 3), null, 2));
             
             return {
               holders: holdersData,
@@ -118,7 +127,11 @@ async function fetchTokenHolders(tokenAddress) {
               source: dataSource,
               error: null
             };
+          } else {
+            console.log('⚠️ Helius returned empty accounts array');
           }
+        } else {
+          console.log('⚠️ Helius response missing result.value or not an array:', JSON.stringify(data, null, 2));
         }
       } else {
         const errorText = await response.text();
@@ -127,8 +140,12 @@ async function fetchTokenHolders(tokenAddress) {
       }
     } catch (heliusError) {
       console.error('❌ Helius RPC request failed:', heliusError.message);
+      console.error('❌ Full error:', heliusError);
       error = `Helius RPC failed: ${heliusError.message}`;
     }
+  } else {
+    console.log('❌ HELIUS_CONFIG.API_KEY is not set!');
+    error = 'Helius API key not configured';
   }
 
   // Method 2: Try Helius API for token metadata and holder estimation
@@ -181,6 +198,7 @@ async function fetchTokenHolders(tokenAddress) {
       });
       
       const rpcData = await rpcResponse.json();
+      console.log('Standard RPC response:', JSON.stringify(rpcData, null, 2));
       
       if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
         const accounts = rpcData.result.value;
@@ -605,7 +623,6 @@ app.post('/api/analyze-token', async (req, res) => {
       totalSupply: tokenMetadata.supply,
       decimals: tokenMetadata.decimals,
       logoURI: tokenMetadata.logoURI,
-      holders,
       holdersCount,
       transactions,
       riskScore,
