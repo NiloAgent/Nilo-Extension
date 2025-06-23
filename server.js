@@ -650,6 +650,7 @@ app.post('/api/analyze-token', async (req, res) => {
         jupiter: tokenMetadata.fromJupiter ? 'available' : 'unavailable',
         solanaList: tokenMetadata.fromSolanaList ? 'available' : 'unavailable',
         bitquery: response.data?.solana ? 'available' : 'unavailable',
+        helius: (holdersSource && holdersSource.includes('helius')) ? 'available' : 'unavailable',
         holders: holdersSource
       },
       holdersError: holdersError,
