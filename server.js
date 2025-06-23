@@ -21,16 +21,24 @@ const BITQUERY_CONFIG = {
   API_KEY: process.env.BITQUERY_API_KEY
 };
 
-// Solscan API Configuration - Using your free API key!
+// Helius API Configuration - Much better for holders data!
+const HELIUS_CONFIG = {
+  RPC_URL: 'https://mainnet.helius-rpc.com/?api-key=5e390e48-0c3b-4dd8-89a9-7736ce552c38',
+  API_KEY: '5e390e48-0c3b-4dd8-89a9-7736ce552c38',
+  BASE_URL: 'https://api.helius.xyz/v0'
+};
+
+// Legacy Solscan config (keeping as fallback)
 const SOLSCAN_CONFIG = {
   PRO_API_URL: 'https://pro-api.solscan.io/v2.0',
-  API_KEY: process.env.SOLSCAN_API_KEY // Your free Solscan API key
+  API_KEY: process.env.SOLSCAN_API_KEY
 };
 
 console.log('🚀 Nilo Backend Server Starting...');
 console.log('📡 Bitquery API Key:', BITQUERY_CONFIG.API_KEY ? 'Configured ✅' : 'Missing ❌');
-console.log('📡 Solscan Pro API URL:', SOLSCAN_CONFIG.PRO_API_URL);
-console.log('🔑 Solscan API Key:', SOLSCAN_CONFIG.API_KEY ? 'Configured ✅ (Free Plan)' : 'Missing ❌');
+console.log('🔥 Helius RPC URL:', HELIUS_CONFIG.RPC_URL ? 'Configured ✅' : 'Missing ❌');
+console.log('🔑 Helius API Key:', HELIUS_CONFIG.API_KEY ? 'Configured ✅' : 'Missing ❌');
+console.log('📡 Solscan API Key:', SOLSCAN_CONFIG.API_KEY ? 'Configured ✅ (Fallback)' : 'Missing ❌');
 
 // Helper function to make HTTP requests
 function makeRequest(options, postData) {
@@ -53,77 +61,153 @@ function makeRequest(options, postData) {
   });
 }
 
-// Enhanced Solscan holders fetching with your API key
-async function fetchSolscanHolders(tokenAddress) {
-  console.log(`📡 Fetching holders from Solscan API for token: ${tokenAddress}`);
+// Enhanced Helius + Solana RPC holders fetching
+async function fetchTokenHolders(tokenAddress) {
+  console.log(`🔥 Fetching holders using Helius + Solana RPC for token: ${tokenAddress}`);
   
   let holdersData = [];
   let holdersCount = 0;
-  let dataSource = 'solscan-free';
+  let dataSource = 'helius';
   let error = null;
 
-  // Method 1: Try Solscan v2 API with your free API key
-  if (SOLSCAN_CONFIG.API_KEY) {
+  // Method 1: Try Helius RPC getTokenLargestAccounts (Best method)
+  if (HELIUS_CONFIG.API_KEY) {
     try {
-      console.log('🔑 Using Solscan v2 API with your free API key...');
-      const apiUrl = `${SOLSCAN_CONFIG.PRO_API_URL}/token/holders?address=${tokenAddress}&page_size=20`;
+      console.log('🔥 Using Helius RPC for token largest accounts...');
       
-      console.log(`🔗 Solscan API URL: ${apiUrl}`);
-      
-      const response = await fetch(apiUrl, {
-        headers: {
-          'token': SOLSCAN_CONFIG.API_KEY,
-          'Accept': 'application/json',
-          'User-Agent': 'Nilo-Extension/2.0'
-        },
-        timeout: 15000
+      const response = await fetch(HELIUS_CONFIG.RPC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTokenLargestAccounts',
+          params: [tokenAddress]
+        })
       });
       
-      console.log(`📡 Solscan API Response Status: ${response.status}`);
+      console.log(`📡 Helius RPC Response Status: ${response.status}`);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Raw Solscan API response:', JSON.stringify(data, null, 2));
+        console.log('✅ Raw Helius RPC response:', JSON.stringify(data, null, 2));
         
-        if (data.success && data.data) {
-          const items = data.data.items || [];
-          const total = data.data.total || 0;
+        if (data.result?.value && Array.isArray(data.result.value)) {
+          const accounts = data.result.value;
           
-          holdersData = items.map((holder, index) => ({
-            rank: holder.rank || index + 1,
-            address: holder.owner || holder.address || `Holder-${index + 1}`,
-            balance: holder.amount || '0',
-            percentage: holder.percentage || '0',
-            decimals: holder.decimals || 9,
-            value: holder.value || 0
-          }));
-          
-          holdersCount = total;
-          dataSource = 'solscan-api';
-          console.log(`✅ Got ${holdersData.length} holders from Solscan API (${holdersCount} total)`);
-          
-          return {
-            holders: holdersData,
-            count: holdersCount,
-            source: dataSource,
-            error: null
-          };
-        } else {
-          console.log('⚠️ Solscan API returned success=false or no data:', data);
-          error = data.message || 'API returned no data';
+          if (accounts.length > 0) {
+            // Calculate total supply from all accounts
+            const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+            
+            holdersData = accounts.slice(0, 50).map((account, index) => ({
+              rank: index + 1,
+              address: account.address || `Account-${index + 1}`,
+              balance: account.amount || '0',
+              percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
+              decimals: account.decimals || 9,
+              value: parseFloat(account.amount || 0)
+            }));
+            
+            holdersCount = Math.max(accounts.length, 100); // Estimate total holders
+            dataSource = 'helius-rpc';
+            console.log(`✅ Got ${holdersData.length} holders from Helius RPC (${holdersCount} estimated total)`);
+            
+            return {
+              holders: holdersData,
+              count: holdersCount,
+              source: dataSource,
+              error: null
+            };
+          }
         }
       } else {
         const errorText = await response.text();
-        console.log(`❌ Solscan API returned status ${response.status}: ${errorText}`);
-        error = `HTTP ${response.status}: ${errorText}`;
+        console.log(`❌ Helius RPC returned status ${response.status}: ${errorText}`);
+        error = `Helius RPC error: ${response.status}`;
       }
-    } catch (apiError) {
-      console.error('❌ Solscan API request failed:', apiError.message);
-      error = `API request failed: ${apiError.message}`;
+    } catch (heliusError) {
+      console.error('❌ Helius RPC request failed:', heliusError.message);
+      error = `Helius RPC failed: ${heliusError.message}`;
     }
   }
 
-  // Method 2: Fallback to Bitquery GraphQL estimation (if Solscan fails)
+  // Method 2: Try Helius API for token metadata and holder estimation
+  if (!holdersData.length && HELIUS_CONFIG.API_KEY) {
+    try {
+      console.log('🔍 Trying Helius API for token metadata...');
+      
+      const response = await fetch(`${HELIUS_CONFIG.BASE_URL}/token-metadata?api-key=${HELIUS_CONFIG.API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mintAccounts: [tokenAddress]
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Helius metadata response:', JSON.stringify(data, null, 2));
+        
+        // If we get metadata, try to estimate holders from supply
+        if (data && data.length > 0) {
+          const tokenInfo = data[0];
+          if (tokenInfo.supply) {
+            // Estimate holders based on supply (very rough estimate)
+            holdersCount = Math.min(Math.max(Math.floor(tokenInfo.supply / 1000000), 10), 10000);
+            dataSource = 'helius-estimated';
+            error = 'Using Helius metadata estimation';
+          }
+        }
+      }
+    } catch (heliusApiError) {
+      console.log('⚠️ Helius API metadata request failed:', heliusApiError.message);
+    }
+  }
+
+  // Method 3: Fallback to standard Solana RPC
+  if (!holdersData.length) {
+    try {
+      console.log('🔗 Fallback: Using standard Solana RPC...');
+      
+      const rpcResponse = await fetch('https://api.mainnet-beta.solana.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTokenLargestAccounts',
+          params: [tokenAddress]
+        })
+      });
+      
+      const rpcData = await rpcResponse.json();
+      
+      if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
+        const accounts = rpcData.result.value;
+        
+        if (accounts.length > 0) {
+          const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+          
+          holdersData = accounts.slice(0, 20).map((account, index) => ({
+            rank: index + 1,
+            address: account.address || `Account-${index + 1}`,
+            balance: account.amount || '0',
+            percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
+            decimals: account.decimals || 9
+          }));
+          
+          holdersCount = Math.max(accounts.length, 50);
+          dataSource = 'solana-rpc';
+          error = 'Helius failed, using standard Solana RPC';
+          console.log(`✅ Got ${holdersData.length} largest accounts from standard Solana RPC`);
+        }
+      }
+    } catch (rpcError) {
+      console.log('⚠️ Standard Solana RPC also failed:', rpcError.message);
+    }
+  }
+
+  // Method 4: Bitquery GraphQL estimation (if still no data)
   if (!holdersData.length && BITQUERY_CONFIG.API_KEY) {
     try {
       console.log('🔍 Fallback: Trying Bitquery GraphQL for holders estimation...');
@@ -196,7 +280,7 @@ async function fetchSolscanHolders(tokenAddress) {
           
           holdersCount = Math.max(holderMap.size, 100);
           dataSource = 'bitquery-estimated';
-          error = 'Solscan API failed, using Bitquery estimation';
+          error = 'All RPC methods failed, using Bitquery estimation';
           console.log(`✅ Estimated ${holdersData.length} top holders from Bitquery`);
         }
       }
@@ -205,63 +289,19 @@ async function fetchSolscanHolders(tokenAddress) {
     }
   }
 
-  // Method 3: Last resort - Solana RPC getLargestAccounts
-  if (!holdersData.length) {
-    try {
-      console.log('🔗 Last resort: Trying Solana RPC getLargestAccounts...');
-      
-      const rpcResponse = await fetch('https://api.mainnet-beta.solana.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getTokenLargestAccounts',
-          params: [tokenAddress]
-        })
-      });
-      
-      const rpcData = await rpcResponse.json();
-      
-      if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
-        const accounts = rpcData.result.value;
-        
-        if (accounts.length > 0) {
-          const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
-          
-          holdersData = accounts.slice(0, 20).map((account, index) => ({
-            rank: index + 1,
-            address: account.address || `Account-${index + 1}`,
-            balance: account.amount || '0',
-            percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
-            decimals: account.decimals || 9
-          }));
-          
-          holdersCount = Math.max(accounts.length, 50);
-          dataSource = 'solana-rpc';
-          error = 'Solscan API failed, using Solana RPC data';
-          console.log(`✅ Got ${holdersData.length} largest accounts from Solana RPC`);
-        }
-      }
-    } catch (rpcError) {
-      console.log('⚠️ Solana RPC getLargestAccounts also failed:', rpcError.message);
-    }
-  }
-
-  // Final fallback: Demo data
+  // Final fallback: Demo data with clear disclaimer
   if (!holdersData.length) {
     console.log('⚠️ All methods failed, using demo data...');
-    
     holdersData = [
-      { rank: 1, address: 'Demo1111111111111111111111111111111111111', balance: '100000', percentage: '10.0000', decimals: 9 },
-      { rank: 2, address: 'Demo2222222222222222222222222222222222222', balance: '50000', percentage: '5.0000', decimals: 9 },
-      { rank: 3, address: 'Demo3333333333333333333333333333333333333', balance: '30000', percentage: '3.0000', decimals: 9 }
+      { rank: 1, address: 'Demo1...', balance: '1000000', percentage: '25.5', decimals: 9 },
+      { rank: 2, address: 'Demo2...', balance: '800000', percentage: '20.2', decimals: 9 },
+      { rank: 3, address: 'Demo3...', balance: '600000', percentage: '15.1', decimals: 9 }
     ];
-    holdersCount = 250;
-    dataSource = 'demo-fallback';
-    error = 'All data sources failed. Using demo data.';
+    holdersCount = 150;
+    dataSource = 'demo';
+    error = 'All APIs failed, showing demo data';
   }
-  
+
   return {
     holders: holdersData,
     count: holdersCount,
@@ -524,7 +564,7 @@ app.post('/api/analyze-token', async (req, res) => {
 
     // Get holder data using Solscan API with your key
     console.log('📡 Fetching holder data using Solscan API...');
-    const holdersResult = await fetchSolscanHolders(tokenAddress);
+    const holdersResult = await fetchTokenHolders(tokenAddress);
     const holdersData = holdersResult.holders;
     const holdersCount = holdersResult.count;
     const holdersSource = holdersResult.source;
