@@ -672,12 +672,12 @@ app.post('/api/analyze-token', async (req, res) => {
     }
     
     // Use holdersCount for calculations
-    const holders = holdersCount;
+    // Note: holdersCount is the number, holdersData is the array
 
     // Calculate risk score
     let riskScore = 5; // Default medium risk
     
-    if (holders > 100) riskScore += 2;
+    if (holdersCount > 100) riskScore += 2;
     if (transactions > 50) riskScore += 1;
     if (tokenMetadata.supply && parseFloat(tokenMetadata.supply) > 1000000) riskScore += 1;
     
@@ -687,7 +687,7 @@ app.post('/api/analyze-token', async (req, res) => {
     console.log(`   • Name: ${tokenMetadata.name}`);
     console.log(`   • Symbol: ${tokenMetadata.symbol}`);
     console.log(`   • Supply: ${tokenMetadata.supply}`);
-    console.log(`   • Holders: ${holders} (source: ${holdersSource})`);
+    console.log(`   • Holders: ${holdersCount} (source: ${holdersSource})`);
     console.log(`   • Transactions: ${transactions}`);
 
     // Return comprehensive analysis results
@@ -704,8 +704,8 @@ app.post('/api/analyze-token', async (req, res) => {
       transactions,
       riskScore,
       analysis: {
-        liquidityScore: Math.min(10, holders / 10),
-        holderDistribution: Math.min(10, Math.max(1, 10 - (holders / 20))),
+        liquidityScore: Math.min(10, holdersCount / 10),
+        holderDistribution: Math.min(10, Math.max(1, 10 - (holdersCount / 20))),
         transactionVolume: Math.min(10, transactions / 10)
       },
       holders: holdersData,
@@ -742,6 +742,65 @@ app.post('/api/analyze-token', async (req, res) => {
       error: error.message,
       tokenAddress: req.body.tokenAddress || 'unknown',
       platform: 'Railway'
+    });
+  }
+});
+
+// Debug endpoint to test Helius API directly
+app.post('/api/debug-helius', async (req, res) => {
+  try {
+    const { tokenAddress } = req.body;
+    console.log(`🔍 Testing Helius API directly for: ${tokenAddress}`);
+    
+    // Test getTokenAccounts
+    const requestBody = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getTokenAccounts',
+      params: {
+        page: 1,
+        limit: 10,
+        displayOptions: {},
+        mint: tokenAddress || '7PhGXavnYTRacRzG4p1ymNz4Vw6Yj9HaKidzBP4fpump'
+      }
+    };
+    
+    console.log('🔑 Using API Key:', HELIUS_CONFIG.API_KEY);
+    console.log('🔗 Using RPC URL:', HELIUS_CONFIG.RPC_URL);
+    console.log('📡 Request body:', JSON.stringify(requestBody, null, 2));
+    
+    const response = await fetch(HELIUS_CONFIG.RPC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+    
+    const responseText = await response.text();
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response text:', responseText);
+    
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (parseError) {
+      responseData = { error: 'Failed to parse JSON', rawResponse: responseText };
+    }
+    
+    res.json({
+      success: true,
+      requestUrl: HELIUS_CONFIG.RPC_URL,
+      requestBody: requestBody,
+      responseStatus: response.status,
+      responseData: responseData,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Debug Helius test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
     });
   }
 });
