@@ -72,30 +72,6 @@ async function fetchTokenHolders(tokenAddress) {
   let dataSource = 'unknown';
   let error = null;
 
-  // TEMPORARY: Force demo data to test extension (skip API calls due to fetch() issue)
-  console.log('🚨 TEMPORARY: Forcing demo data to test extension - VERSION 2...');
-  holdersData = [
-    { rank: 1, address: 'Demo1holder...xyz', balance: '1000000000', percentage: '15.5', decimals: 9, value: 1000000000 },
-    { rank: 2, address: 'Demo2holder...abc', balance: '800000000', percentage: '12.2', decimals: 9, value: 800000000 },
-    { rank: 3, address: 'Demo3holder...def', balance: '600000000', percentage: '9.1', decimals: 9, value: 600000000 },
-    { rank: 4, address: 'Demo4holder...ghi', balance: '500000000', percentage: '7.6', decimals: 9, value: 500000000 },
-    { rank: 5, address: 'Demo5holder...jkl', balance: '400000000', percentage: '6.1', decimals: 9, value: 400000000 }
-  ];
-  holdersCount = 96; // Simulate the 96 holders we found in direct tests
-  dataSource = 'demo-test-v2';
-  error = 'TEMPORARY: Using demo data to test extension (fetch() not available on Railway)';
-  
-  console.log(`🎯 DEMO DATA FORCED: ${holdersData.length} holders, count: ${holdersCount}, source: ${dataSource}`);
-  
-  return {
-    holders: holdersData,
-    count: holdersCount,
-    source: dataSource,
-    error: error
-  };
-
-  /* COMMENTED OUT API CALLS DUE TO FETCH() ISSUE - WILL FIX LATER
-  
   // Method 1: Use Helius getTokenAccounts API (CORRECT METHOD for getting ALL holders)
   if (HELIUS_CONFIG.API_KEY) {
     try {
@@ -272,30 +248,27 @@ async function fetchTokenHolders(tokenAddress) {
         if (balanceUpdates.length > 0) {
           // Calculate total from all holders
           const totalHolding = balanceUpdates.reduce((sum, update) => {
-            return sum + parseFloat(update.BalanceUpdate?.Holding || 0);
+            return sum + parseFloat(update.BalanceUpdate.Holding || 0);
           }, 0);
           
-          holdersData = balanceUpdates
-            .filter(update => parseFloat(update.BalanceUpdate?.Holding || 0) > 0)
-            .map((update, index) => {
-              const holding = parseFloat(update.BalanceUpdate?.Holding || 0);
-              return {
-                rank: index + 1,
-                address: update.BalanceUpdate?.Account?.Address || `Holder-${index + 1}`,
-                balance: update.BalanceUpdate?.Holding || '0',
-                percentage: totalHolding > 0 ? ((holding / totalHolding) * 100).toFixed(4) : '0',
-                decimals: update.BalanceUpdate?.Currency?.Decimals || 9,
-                value: holding
-              };
-            })
-            .slice(0, 50);
+          console.log(`📊 Total holding calculated from Bitquery: ${totalHolding}`);
+          
+          // Format holders data
+          holdersData = balanceUpdates.map((update, index) => ({
+            rank: index + 1,
+            address: update.BalanceUpdate.Account.Address,
+            balance: update.BalanceUpdate.Holding || '0',
+            percentage: totalHolding > 0 ? ((parseFloat(update.BalanceUpdate.Holding || 0) / totalHolding) * 100).toFixed(4) : '0',
+            decimals: update.BalanceUpdate.Currency.Decimals || 9,
+            value: parseFloat(update.BalanceUpdate.Holding || 0)
+          }));
           
           holdersCount = balanceUpdates.length;
-          dataSource = 'bitquery-v2';
-          error = 'Helius failed, using Bitquery V2';
+          dataSource = 'bitquery-balance-updates';
+          error = null;
           
-          console.log(`✅ Processed ${holdersData.length} holders from Bitquery V2`);
-          console.log(`🏆 Sample holder:`, holdersData[0]);
+          console.log(`✅ Successfully processed ${holdersData.length} holders from Bitquery`);
+          console.log(`🏆 Top 3 holders:`, holdersData.slice(0, 3));
           
           return {
             holders: holdersData,
@@ -303,21 +276,27 @@ async function fetchTokenHolders(tokenAddress) {
             source: dataSource,
             error: error
           };
+        } else {
+          console.log('⚠️ Bitquery V2 returned no balance updates');
+          error = 'No balance updates found via Bitquery V2';
         }
       } else {
-        console.log('⚠️ Bitquery V2 returned no BalanceUpdates');
-        error = 'Bitquery V2 no data';
+        console.log('⚠️ Bitquery V2 response missing expected data structure');
+        error = 'Invalid response structure from Bitquery V2';
       }
     } catch (bitqueryError) {
       console.error('❌ Bitquery V2 failed:', bitqueryError.message);
       error = `Bitquery V2 error: ${bitqueryError.message}`;
     }
+  } else if (!holdersData.length) {
+    console.log('❌ BITQUERY_CONFIG.API_KEY is not set!');
+    error = error || 'Bitquery API key not configured';
   }
 
-  // Method 3: Fallback to Helius getTokenLargestAccounts (Limited to top 20)
+  // Method 3: Use Helius getTokenLargestAccounts API (FALLBACK - limited to 20 holders)
   if (!holdersData.length && HELIUS_CONFIG.API_KEY) {
     try {
-      console.log('🔗 Fallback: Using Helius getTokenLargestAccounts (top 20 only)...');
+      console.log('🔄 Fallback: Using Helius getTokenLargestAccounts API (limited to 20)...');
       
       const requestBody = {
         jsonrpc: '2.0',
@@ -326,7 +305,6 @@ async function fetchTokenHolders(tokenAddress) {
         params: [tokenAddress]
       };
       
-      // Use https module instead of fetch for Railway compatibility
       const url = new URL(HELIUS_CONFIG.RPC_URL);
       const options = {
         hostname: url.hostname,
@@ -336,44 +314,50 @@ async function fetchTokenHolders(tokenAddress) {
         headers: { 'Content-Type': 'application/json' }
       };
       
-      try {
-        const data = await makeRequest(options, JSON.stringify(requestBody));
-        console.log('✅ Helius largest accounts response received');
+      const data = await makeRequest(options, JSON.stringify(requestBody));
+      console.log('📡 Helius getTokenLargestAccounts response:', JSON.stringify(data, null, 2));
+      
+      if (data.result?.value && Array.isArray(data.result.value)) {
+        const accounts = data.result.value;
+        console.log(`✅ Found ${accounts.length} largest accounts`);
         
-        if (data.result?.value && Array.isArray(data.result.value)) {
-          const accounts = data.result.value;
+        if (accounts.length > 0) {
+          // Calculate total from largest accounts
+          const totalAmount = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
           
-          if (accounts.length > 0) {
-            const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
-            
-            holdersData = accounts.map((account, index) => ({
-              rank: index + 1,
-              address: account.address || `Account-${index + 1}`,
-              balance: account.amount || '0',
-              percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
-              decimals: account.decimals || 9,
-              value: parseFloat(account.amount || 0)
-            }));
-            
-            holdersCount = 20; // Only top 20 available
-            dataSource = 'helius-largest-accounts';
-            error = 'Limited to top 20 holders only';
-            
-            console.log(`✅ Got ${holdersData.length} largest accounts (limited data)`);
-          }
+          holdersData = accounts.map((account, index) => ({
+            rank: index + 1,
+            address: account.address,
+            balance: account.amount || '0',
+            percentage: totalAmount > 0 ? ((parseFloat(account.amount || 0) / totalAmount) * 100).toFixed(4) : '0',
+            decimals: account.decimals || 9,
+            value: parseFloat(account.amount || 0)
+          }));
+          
+          holdersCount = accounts.length;
+          dataSource = 'helius-largest-accounts';
+          error = 'Limited to top 20 holders (fallback method)';
+          
+          console.log(`✅ Successfully processed ${holdersData.length} largest holders`);
+          
+          return {
+            holders: holdersData,
+            count: holdersCount,
+            source: dataSource,
+            error: error
+          };
         }
-      } catch (heliusError) {
-        console.log('⚠️ Helius largest accounts failed:', heliusError.message);
       }
     } catch (fallbackError) {
-      console.log('⚠️ Helius largest accounts fallback failed:', fallbackError.message);
+      console.error('❌ Helius fallback failed:', fallbackError.message);
+      error = `Helius fallback error: ${fallbackError.message}`;
     }
   }
 
-  // Method 4: Standard Solana RPC fallback
+  // Method 4: Standard Solana RPC fallback (very limited)
   if (!holdersData.length) {
     try {
-      console.log('🔗 Final fallback: Standard Solana RPC...');
+      console.log('🔄 Final fallback: Standard Solana RPC...');
       
       const requestBody = {
         jsonrpc: '2.0',
@@ -382,7 +366,6 @@ async function fetchTokenHolders(tokenAddress) {
         params: [tokenAddress]
       };
       
-      // Use https module instead of fetch for Railway compatibility
       const options = {
         hostname: 'api.mainnet-beta.solana.com',
         port: 443,
@@ -391,49 +374,38 @@ async function fetchTokenHolders(tokenAddress) {
         headers: { 'Content-Type': 'application/json' }
       };
       
-      const rpcData = await makeRequest(options, JSON.stringify(requestBody));
+      const data = await makeRequest(options, JSON.stringify(requestBody));
       
-      if (rpcData.result?.value && Array.isArray(rpcData.result.value)) {
-        const accounts = rpcData.result.value;
+      if (data.result?.value && Array.isArray(data.result.value)) {
+        const accounts = data.result.value;
         
         if (accounts.length > 0) {
-          const totalSupply = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
+          const totalAmount = accounts.reduce((sum, acc) => sum + parseFloat(acc.amount || 0), 0);
           
           holdersData = accounts.map((account, index) => ({
             rank: index + 1,
-            address: account.address || `Account-${index + 1}`,
+            address: account.address,
             balance: account.amount || '0',
-            percentage: totalSupply > 0 ? ((parseFloat(account.amount || 0) / totalSupply) * 100).toFixed(4) : '0',
+            percentage: totalAmount > 0 ? ((parseFloat(account.amount || 0) / totalAmount) * 100).toFixed(4) : '0',
             decimals: account.decimals || 9,
             value: parseFloat(account.amount || 0)
           }));
           
-          holdersCount = 20;
-          dataSource = 'solana-rpc';
-          error = 'All premium APIs failed, using basic RPC (top 20 only)';
+          holdersCount = accounts.length;
+          dataSource = 'solana-rpc-fallback';
+          error = 'Using basic RPC (very limited data)';
+          
+          console.log(`✅ RPC fallback: processed ${holdersData.length} holders`);
         }
       }
     } catch (rpcError) {
-      console.log('⚠️ Standard Solana RPC also failed:', rpcError.message);
+      console.error('❌ RPC fallback failed:', rpcError.message);
+      error = `All methods failed. Last error: ${rpcError.message}`;
     }
   }
 
-  // Final fallback: Demo data
-  if (!holdersData.length) {
-    console.log('⚠️ All methods failed, using demo data...');
-    holdersData = [
-      { rank: 1, address: 'Demo1holder...xyz', balance: '1000000000', percentage: '15.5', decimals: 9, value: 1000000000 },
-      { rank: 2, address: 'Demo2holder...abc', balance: '800000000', percentage: '12.2', decimals: 9, value: 800000000 },
-      { rank: 3, address: 'Demo3holder...def', balance: '600000000', percentage: '9.1', decimals: 9, value: 600000000 },
-      { rank: 4, address: 'Demo4holder...ghi', balance: '500000000', percentage: '7.6', decimals: 9, value: 500000000 },
-      { rank: 5, address: 'Demo5holder...jkl', balance: '400000000', percentage: '6.1', decimals: 9, value: 400000000 }
-    ];
-    holdersCount = 95;
-    dataSource = 'demo';
-    error = 'All APIs failed - showing demo data (Configure Helius or Bitquery API keys)';
-  }
-
-  console.log(`🎯 Final result: ${holdersData.length} holders, source: ${dataSource}`);
+  // Final result
+  console.log(`🎯 Final result: ${holdersData.length} holders, count: ${holdersCount}, source: ${dataSource}`);
   
   return {
     holders: holdersData,
@@ -807,22 +779,18 @@ app.post('/api/debug-helius', async (req, res) => {
     console.log('🔗 Using RPC URL:', HELIUS_CONFIG.RPC_URL);
     console.log('📡 Request body:', JSON.stringify(requestBody, null, 2));
     
-    const response = await fetch(HELIUS_CONFIG.RPC_URL, {
+    // Use https module instead of fetch for Railway compatibility
+    const url = new URL(HELIUS_CONFIG.RPC_URL);
+    const options = {
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname + url.search,
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
-    });
+      headers: { 'Content-Type': 'application/json' }
+    };
     
-    const responseText = await response.text();
-    console.log('📡 Response status:', response.status);
-    console.log('📡 Response text:', responseText);
-    
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (parseError) {
-      responseData = { error: 'Failed to parse JSON', rawResponse: responseText };
-    }
+    const responseData = await makeRequest(options, JSON.stringify(requestBody));
+    console.log('📡 Helius debug response:', JSON.stringify(responseData, null, 2));
     
     res.json({
       success: true,
