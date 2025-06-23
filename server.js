@@ -23,8 +23,8 @@ const BITQUERY_CONFIG = {
 
 // Helius API Configuration - Much better for holders data!
 const HELIUS_CONFIG = {
-  RPC_URL: 'https://mainnet.helius-rpc.com/?api-key=5e390e48-0c3b-4dd8-89a9-7736ce552c38',
-  API_KEY: '5e390e48-0c3b-4dd8-89a9-7736ce552c38',
+  API_KEY: process.env.HELIUS_API_KEY || '5e390e48-0c3b-4dd8-89a9-7736ce552c38',
+  RPC_URL: process.env.HELIUS_RPC_URL || `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY || '5e390e48-0c3b-4dd8-89a9-7736ce552c38'}`,
   BASE_URL: 'https://api.helius.xyz/v0'
 };
 
