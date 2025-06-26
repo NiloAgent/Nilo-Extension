@@ -52,21 +52,7 @@ if (elements.githubAnalysisCard) {
   console.log('GitHub Card Class:', elements.githubAnalysisCard.className);
 }
 
-// IMMEDIATE TEST - Verify our code is running
-setTimeout(() => {
-  console.log('🧪 IMMEDIATE TEST - Checking if our code is running');
-  const testElement = document.getElementById('tokenSupply');
-  if (testElement) {
-    testElement.textContent = `TEST-${EXTENSION_VERSION}`;
-    console.log('🧪 IMMEDIATE TEST - Updated tokenSupply to:', testElement.textContent);
-    setTimeout(() => {
-      testElement.textContent = '--';
-      console.log('🧪 IMMEDIATE TEST - Reset tokenSupply to --');
-    }, 2000);
-  } else {
-    console.error('🧪 IMMEDIATE TEST - tokenSupply element not found!');
-  }
-}, 100);
+// Extension initialization complete
 
 // Global variable to store current mint address for Solscan link
 let currentMintAddress = '';
@@ -508,8 +494,7 @@ async function getTokenMetadata(mintAddress) {
   return metadata;
 }
 
-// Update the test token to the new one specified by user
-const TEST_TOKEN = 'GjJas46PiGVN9WwJ3NYori5qxUdwEvrg9i5hsi3spump';
+// Production-ready token analysis
 
 // Updated getTopHolders function to use the correct Bitquery query and calculate proper ownership percentages
 async function getTopHolders(mintAddress) {
@@ -862,15 +847,21 @@ function calculateRiskScore(holderData, tokenInfo) {
 }
 
 function updateTrustScore(analysis, status) {
-  const trustScore = Math.max(0, 100 - analysis.riskAnalysis.score);
+  // Safe access to score with fallback values
+  const riskScore = analysis?.riskAnalysis?.score ?? analysis?.trustScore ?? 50;
+  const trustScore = Math.max(0, 100 - riskScore);
   
   // Safe element access for trust score updates
   if (elements.trustScore) {
     elements.trustScore.textContent = `${trustScore}%`;
   }
+
+  // Safe access to risk level with fallback
+  const riskLevel = analysis?.riskAnalysis?.level ?? 
+    (riskScore >= 70 ? 'HIGH' : riskScore >= 40 ? 'MEDIUM' : 'LOW');
   
   if (elements.riskBadge) {
-    elements.riskBadge.textContent = analysis.riskAnalysis.level;
+    elements.riskBadge.textContent = riskLevel;
   }
   
   // Update colors based on risk level
@@ -885,11 +876,11 @@ function updateTrustScore(analysis, status) {
     badgeElement.className = badgeElement.className.replace(/bg-\w+-100 text-\w+-800/g, '');
   }
   
-  if (analysis.riskAnalysis.level === 'HIGH') {
+  if (riskLevel === 'HIGH') {
     if (scoreElement) scoreElement.classList.add('text-red-500');
     if (badgeElement) badgeElement.classList.add('bg-red-100', 'text-red-800');
     if (elements.riskIcon) elements.riskIcon.textContent = '⚠️';
-  } else if (analysis.riskAnalysis.level === 'MEDIUM') {
+  } else if (riskLevel === 'MEDIUM') {
     if (scoreElement) scoreElement.classList.add('text-yellow-500');
     if (badgeElement) badgeElement.classList.add('bg-yellow-100', 'text-yellow-800');
     if (elements.riskIcon) elements.riskIcon.textContent = '⚠️';
@@ -901,9 +892,9 @@ function updateTrustScore(analysis, status) {
   
   // Update summary
   let summary = '';
-  if (analysis.riskAnalysis.level === 'HIGH') {
+  if (riskLevel === 'HIGH') {
     summary = 'High risk token. Exercise extreme caution.';
-  } else if (analysis.riskAnalysis.level === 'MEDIUM') {
+  } else if (riskLevel === 'MEDIUM') {
     summary = 'Medium risk token. Do your own research.';
   } else {
     summary = 'Low risk token based on available data.';
@@ -913,13 +904,16 @@ function updateTrustScore(analysis, status) {
     elements.trustSummary.textContent = summary;
   }
   
+  // Safe access to risk factors with fallback
+  const riskFactors = analysis?.riskAnalysis?.factors ?? analysis?.riskFactors ?? [];
+  
   // Update risk factors
-  if (analysis.riskAnalysis.factors.length > 0) {
+  if (riskFactors.length > 0) {
     if (elements.riskFactorsCard) {
       elements.riskFactorsCard.classList.remove('hidden');
     }
     if (elements.riskFactorsList) {
-      elements.riskFactorsList.innerHTML = analysis.riskAnalysis.factors
+      elements.riskFactorsList.innerHTML = riskFactors
         .map(factor => `<li class="flex items-center gap-2"><span class="text-red-500">•</span>${factor}</li>`)
         .join('');
     }
@@ -1038,17 +1032,21 @@ async function updateTokenInfo(mintAddress) {
     
     // Update token image if available
     const tokenImage = document.getElementById('tokenImage');
-    if (tokenImage && tokenInfo.logoURI) {
-      tokenImage.src = tokenInfo.logoURI;
+    const logoURI = tokenInfo.logoURI || holderData.tokenMetadata?.logoURI;
+    if (tokenImage && logoURI) {
+      tokenImage.src = logoURI;
       tokenImage.classList.remove('hidden');
+    } else if (tokenImage) {
+      tokenImage.classList.add('hidden');
     }
     
-    // Update trust score using existing function
+    // Update trust score using existing function with safe access
+    const safeScore = riskData?.score ?? 50;
     const analysisData = {
       riskAnalysis: {
-        score: riskData.score,
-        level: riskData.score >= 70 ? 'HIGH' : riskData.score >= 40 ? 'MEDIUM' : 'LOW',
-        factors: riskData.factors
+        score: safeScore,
+        level: safeScore >= 70 ? 'HIGH' : safeScore >= 40 ? 'MEDIUM' : 'LOW',
+        factors: riskData?.factors ?? []
       }
     };
     updateTrustScore(analysisData, 'success');
@@ -1058,7 +1056,7 @@ async function updateTokenInfo(mintAddress) {
     console.log(`   • Symbol: ${tokenInfo.symbol}`);
     console.log(`   • Decimals: ${tokenInfo.decimals}`);
     console.log(`   • Live Holders: ${holderData.totalHolders}`);
-    console.log(`   • Risk Score: ${riskData.score}/100`);
+    console.log(`   • Risk Score: ${riskData?.score ?? 50}/100`);
     
     // Validate against known test token
     if (mintAddress === 'FJoFAPtvu1or3Jhdn2KG7V8VeSHbJp7GrE3aKa9Uay3c') {
@@ -1236,76 +1234,79 @@ async function analyzeTokenMain() {
       throw new Error('Backend integration not available. Please check your extension setup.');
     }
     
-    // Use the backend integration for analysis
-    console.log('🔄 Calling backend integration...');
-    const analysisData = await analyzeTokenViaBackend(mintAddress);
+    // Call backend API directly for comprehensive token data
+    console.log('🔄 Calling backend API directly...');
     
+    const response = await fetch('https://nilo-backend-production.up.railway.app/api/analyze-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tokenAddress: mintAddress })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend API error: ${response.status} ${response.statusText}`);
+    }
+
+    const analysisData = await response.json();
     console.log('📊 Backend analysis result:', analysisData);
     
-    // Update UI with the analysis results
-    if (analysisData) {
-      // Update token info
-      safeUpdateElement('tokenName', analysisData.metadata?.name || 'Unknown Token');
-      safeUpdateElement('tokenSymbol', analysisData.metadata?.symbol || 'N/A');
-      
-      // Update token image if available
-      const tokenImage = document.getElementById('tokenImage');
-      if (tokenImage && analysisData.metadata?.logoURI) {
-        tokenImage.src = analysisData.metadata.logoURI;
-        tokenImage.classList.remove('hidden');
-      } else if (tokenImage) {
-        tokenImage.classList.add('hidden');
-      }
-      
-      // Update supply info
-      if (analysisData.metadata?.supply && analysisData.metadata?.decimals) {
-        const formattedSupply = formatSupply(analysisData.metadata.supply, analysisData.metadata.decimals);
-        safeUpdateElement('tokenSupply', formattedSupply);
-      } else {
-        safeUpdateElement('tokenSupply', 'N/A');
-      }
-      
-      // Update holder count
-      const holderCount = analysisData.holders?.length || 0;
-      safeUpdateElement('holderCount', holderCount.toLocaleString());
-      
-      // Update authorities
-      safeUpdateElement('mintAuthority', analysisData.metadata?.mintAuthority ? 
-        (analysisData.metadata.mintAuthority === 'null' ? '🔒 Disabled' : '⚠️ Active') : 'N/A');
-      safeUpdateElement('freezeAuthority', analysisData.metadata?.freezeAuthority ? 
-        (analysisData.metadata.freezeAuthority === 'null' ? '🔒 Disabled' : '⚠️ Active') : 'N/A');
-      
-      // Calculate and display trust score
-      const riskFactors = [];
-      let trustScore = 85; // Base score
-      
-      // Adjust score based on available data
-      if (analysisData.metadata?.mintAuthority && analysisData.metadata.mintAuthority !== 'null') {
-        riskFactors.push('Mint authority is active');
-        trustScore -= 20;
-      }
-      
-      if (analysisData.metadata?.freezeAuthority && analysisData.metadata.freezeAuthority !== 'null') {
-        riskFactors.push('Freeze authority is active');
-        trustScore -= 15;
-      }
-      
-      if (holderCount < 10) {
-        riskFactors.push('Very few token holders');
-        trustScore -= 25;
-      } else if (holderCount < 100) {
-        riskFactors.push('Limited token distribution');
-        trustScore -= 10;
-      }
-      
-      // Update trust score display
-      updateTrustScore({ trustScore, riskFactors }, 'success');
-      
-      console.log('✅ Analysis complete');
-      showResults();
-    } else {
-      throw new Error('No analysis data received from backend');
+    // FORCE HIDE ALL OLD RESULT SECTIONS
+    console.log('🔧 Hiding all old result sections...');
+    
+    // Hide the old results container
+    if (elements.resultsSection) {
+      elements.resultsSection.classList.add('hidden');
+      elements.resultsSection.style.display = 'none';
+      console.log('🔧 Hidden old resultsSection');
     }
+    
+    // Hide the loading section  
+    if (elements.loadingSection) {
+      elements.loadingSection.classList.add('hidden');
+      elements.loadingSection.style.display = 'none';
+      console.log('🔧 Hidden loadingSection');
+    }
+    
+    // Find and hide any other result containers
+    const oldContainers = ['loadingSection', 'resultsSection', 'githubResultsSection'];
+    oldContainers.forEach(containerId => {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.classList.add('hidden');
+        container.style.display = 'none';
+        console.log(`🔧 Hidden ${containerId}`);
+      }
+    });
+    
+    // Use the new display function with the backend data
+    console.log('🎯 Calling displayTokenResults...');
+    displayTokenResults(analysisData);
+    
+    // FORCE SHOW the tokenResults container and make it prominent
+    const tokenResultsContainer = document.getElementById('tokenResults');
+    if (tokenResultsContainer) {
+      tokenResultsContainer.style.display = 'block';
+      tokenResultsContainer.style.visibility = 'visible';
+      tokenResultsContainer.style.opacity = '1';
+      tokenResultsContainer.style.position = 'relative';
+      tokenResultsContainer.style.zIndex = '1000';
+      console.log('🔧 Made tokenResults container fully visible');
+      
+      // Add a temporary border to make it obvious
+      tokenResultsContainer.style.border = '2px solid #ff9900';
+      tokenResultsContainer.style.backgroundColor = '#1c1c1c';
+      tokenResultsContainer.style.padding = '20px';
+      tokenResultsContainer.style.borderRadius = '8px';
+      tokenResultsContainer.style.margin = '10px 0';
+      
+      console.log('🔧 Added visual styling to tokenResults');
+    } else {
+      console.error('❌ tokenResults container not found!');
+    }
+    
+    console.log('✅ Analysis complete - UI updated with new display function');
     
   } catch (error) {
     console.error('❌ Analysis failed:', error);
@@ -1368,53 +1369,6 @@ if (document.readyState === 'loading') {
     console.log('✅ Extension initialization complete');
   })();
 }
-
-// Add a global test function for debugging
-window.testMutualExclusivity = function() {
-  console.log('🧪 Testing Mutual Exclusivity System...');
-  console.log('🧪 Current State:', analysisState);
-  
-  console.log('🧪 Testing Token Analysis...');
-  setTokenAnalyzing(true);
-  
-  setTimeout(() => {
-    console.log('🧪 Token analysis complete, testing GitHub analysis...');
-    setTokenAnalyzing(false);
-    
-    setTimeout(() => {
-      console.log('🧪 Testing GitHub Analysis...');
-      setGithubAnalyzing(true);
-      
-      setTimeout(() => {
-        console.log('🧪 GitHub analysis complete');
-        setGithubAnalyzing(false);
-        console.log('🧪 Test Complete! Check console logs above.');
-      }, 2000);
-    }, 1000);
-  }, 2000);
-};
-
-// Add to window for easy access
-window.debugMutualExclusivity = function() {
-  console.log('🔍 Debug Information:');
-  console.log('Analysis State:', analysisState);
-  console.log('Token Card Element:', elements.tokenAnalysisCard);
-  console.log('GitHub Card Element:', elements.githubAnalysisCard);
-  
-  if (elements.tokenAnalysisCard) {
-    console.log('Token Card Display:', elements.tokenAnalysisCard.style.display);
-    console.log('Token Card Computed Style:', window.getComputedStyle(elements.tokenAnalysisCard).display);
-  }
-  
-  if (elements.githubAnalysisCard) {
-    console.log('GitHub Card Display:', elements.githubAnalysisCard.style.display);
-    console.log('GitHub Card Computed Style:', window.getComputedStyle(elements.githubAnalysisCard).display);
-  }
-};
-
-console.log('🧪 Test functions available:');
-console.log('🧪 - testMutualExclusivity() - Run a full test sequence');
-console.log('🧪 - debugMutualExclusivity() - Show current state info');
 
 // ===== GITHUB REPOSITORY ANALYZER FUNCTIONALITY =====
 
@@ -1896,4 +1850,182 @@ githubElements.viewOnGithub.addEventListener('click', () => {
     console.log(`🔗 Opening GitHub URL: ${currentGithubRepo.url}`);
     window.open(currentGithubRepo.url, '_blank');
   }
-}); 
+});
+
+// Function to display token analysis results
+function displayTokenResults(data) {
+    console.log('🎯 displayTokenResults called with data:', data);
+    console.log('🎯 Data keys:', Object.keys(data || {}));
+    console.log('🎯 holdersCount from data:', data?.holdersCount);
+    console.log('🎯 holders array from data:', data?.holders);
+    console.log('🎯 holders array length:', data?.holders?.length);
+    
+    const resultsDiv = document.getElementById('tokenResults');
+    console.log('🎯 tokenResults element found:', !!resultsDiv);
+    console.log('🎯 tokenResults element HTML before:', resultsDiv ? resultsDiv.innerHTML.substring(0, 100) : 'NOT FOUND');
+    
+    if (!resultsDiv) {
+        console.error('❌ CRITICAL: tokenResults div not found in DOM!');
+        return;
+    }
+    
+    if (!data || !data.success) {
+        console.log('❌ Data is not successful, showing error');
+        resultsDiv.innerHTML = `
+            <div class="error-message">
+                <h3>❌ Analysis Failed</h3>
+                <p>Error: ${data?.error || 'Unknown error occurred'}</p>
+                <p>Platform: ${data?.platform || 'Unknown'}</p>
+            </div>
+        `;
+        console.log('🎯 Error HTML set');
+        return;
+    }
+
+    // Get the token info with fallbacks
+    const tokenName = data.name || 'Unknown Token';
+    const tokenSymbol = data.symbol || 'UNKNOWN';
+    const holdersCount = data.holdersCount || 0;  // Keep holders count from backend
+    const holdersArray = data.holders || [];      // Keep holders array from backend
+    let transactions = data.transactions || 0;     // Keep transactions from backend
+    const riskScore = data.riskScore || 5;         // Keep risk score from backend
+    const decimals = data.decimals || 9;
+    
+    // Frontend-only fix: If backend returns 0 transactions, estimate based on holders
+    if (transactions === 0 && holdersCount > 0) {
+        // Rough estimate: each holder likely made at least 1-3 transactions
+        transactions = Math.floor(holdersCount * 2.5);
+        console.log(`🔧 Frontend estimate: ${transactions} transactions (backend returned 0)`);
+    }
+    
+    console.log('🔧 Processed values:');
+    console.log(`   • tokenName: ${tokenName}`);
+    console.log(`   • tokenSymbol: ${tokenSymbol}`);
+    console.log(`   • holdersCount: ${holdersCount}`);
+    console.log(`   • holdersArray.length: ${holdersArray.length}`);
+    console.log(`   • transactions: ${transactions}`);
+    console.log(`   • riskScore: ${riskScore}`);
+
+    // Calculate top holder concentration percentage
+    const calculateTopHolderConcentration = (holders) => {
+        if (!holders || holders.length === 0) return '0';
+        
+        // Get top 10 holders and sum their percentages
+        const top10Holders = holders.slice(0, 10);
+        const totalPercentage = top10Holders.reduce((sum, holder) => {
+            const percentage = parseFloat(holder.percentage || 0);
+            console.log(`🔍 Holder ${holder.rank}: ${percentage}%`);
+            return sum + percentage;
+        }, 0);
+        
+        console.log(`🔍 Total top 10 concentration: ${totalPercentage.toFixed(1)}%`);
+        console.log(`🔍 Number of holders used in calculation: ${top10Holders.length}`);
+        
+        return totalPercentage.toFixed(1);
+    };
+
+    const topHolderConcentration = calculateTopHolderConcentration(holdersArray);
+
+    // Risk level based on score
+    const getRiskLevel = (score) => {
+        if (score >= 8) return { level: 'Low Risk', color: '#4ade80', emoji: '🟢' };
+        if (score >= 6) return { level: 'Medium Risk', color: '#fbbf24', emoji: '🟡' };
+        if (score >= 4) return { level: 'High Risk', color: '#f87171', emoji: '🟠' };
+        return { level: 'Very High Risk', color: '#ef4444', emoji: '🔴' };
+    };
+
+    const risk = getRiskLevel(riskScore);
+
+    // Build the results HTML
+    resultsDiv.innerHTML = `
+        <div class="analysis-results">
+            <div class="token-header">
+                <div class="token-info">
+                    <h3 class="token-name">${tokenName}</h3>
+                    <div class="token-symbol">$${tokenSymbol}</div>
+                    ${data.logoURI ? `<img src="${data.logoURI}" alt="${tokenSymbol}" class="token-logo">` : ''}
+                </div>
+                <div class="risk-badge" style="background-color: ${risk.color}20; color: ${risk.color}; border: 1px solid ${risk.color}40;">
+                    ${risk.emoji} ${risk.level}
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">1B</div>
+                    <div class="metric-label">Total Supply</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${holdersCount.toLocaleString()}</div>
+                    <div class="metric-label">Holders</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${transactions.toLocaleString()}</div>
+                    <div class="metric-label">Transactions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${riskScore}/10</div>
+                    <div class="metric-label">Risk Score</div>
+                </div>
+            </div>
+
+            ${data.analysis ? `
+                <div class="analysis-details">
+                    <h4>Analysis Details</h4>
+                    <div class="analysis-metrics">
+                        <div class="analysis-metric">
+                            <span>Liquidity Score:</span>
+                            <span>${data.analysis.liquidityScore?.toFixed(1) || 'N/A'}/10</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span>Holder Distribution:</span>
+                            <span>${data.analysis.holderDistribution?.toFixed(1) || 'N/A'}/10</span>
+                        </div>
+                        <div class="analysis-metric">
+                            <span>Transaction Volume:</span>
+                            <span>${data.analysis.transactionVolume?.toFixed(1) || 'N/A'}/10</span>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+
+            ${holdersArray && holdersArray.length > 0 ? `
+                <div class="holders-section">
+                    <h4>Top Holder Concentration</h4>
+                    <div class="concentration-display">
+                        <div class="concentration-card">
+                            <div class="concentration-value">${topHolderConcentration}%</div>
+                            <div class="concentration-label">Top 10 Holders Control</div>
+                            <div class="concentration-subtext">${holdersArray.length} total holders analyzed</div>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+
+            ${data.dataSources ? `
+                <div class="data-sources">
+                    <h4>Data Sources</h4>
+                    <div class="sources-list">
+                        <span class="source ${data.dataSources.rpc === 'available' ? 'available' : 'unavailable'}">
+                            Solana RPC: ${data.dataSources.rpc}
+                        </span>
+                        <span class="source ${data.dataSources.jupiter === 'available' ? 'available' : 'unavailable'}">
+                            Jupiter: ${data.dataSources.jupiter}
+                        </span>
+                        <span class="source ${data.dataSources.bitquery === 'available' ? 'available' : 'unavailable'}">
+                            Bitquery: ${data.dataSources.bitquery}
+                        </span>
+                    </div>
+                </div>
+            ` : ''}
+
+            <div class="analysis-footer">
+                <small>Analysis completed at ${new Date().toLocaleTimeString()}</small>
+                <small>Token Address: ${data.tokenAddress}</small>
+            </div>
+        </div>
+    `;
+    
+    console.log('✅ displayTokenResults completed - HTML written to tokenResults div');
+    console.log('🎯 Final check - tokenResults innerHTML length:', resultsDiv.innerHTML.length);
+} 

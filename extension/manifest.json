@@ -1,12 +1,13 @@
-{
+﻿{
   "manifest_version": 3,
   "name": "Nilo - Solana Token Security Analyzer",
-  "version": "2.0.0",
-  "description": "Comprehensive security analysis for Solana tokens including holder distribution, trading activity, and risk assessment. Helps users identify potential scam tokens and make informed investment decisions.",
+  "version": "2.0.1",
+  "description": "Analyze Solana tokens and GitHub repositories for trustworthiness and key risk indicators",
   "permissions": [
     "storage"
   ],
   "host_permissions": [
+    "https://nilo-backend-production.up.railway.app/*",
     "https://nilo-bvqwdhxs4-birticeks-projects.vercel.app/*",
     "https://api.mainnet-beta.solana.com/*",
     "https://rpc.ankr.com/*",
@@ -26,4 +27,4 @@
     "128": "icons/icon128.png"
   },
   "privacy_policy": "https://github.com/your-username/nilo-extension/blob/main/PRIVACY.md"
-} 
+}

@@ -1237,4 +1237,265 @@ body {
 
 .premium-glow:hover::after {
     opacity: 0.7;
+}
+
+/* Token Analysis Results Styles */
+.analysis-results {
+    padding: 16px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.token-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #333;
+}
+
+.token-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.token-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.token-symbol {
+    font-size: 14px;
+    color: #ff9900;
+    font-weight: 500;
+}
+
+.token-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-top: 8px;
+}
+
+.risk-badge {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 100px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    background: #2a2a2a;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    font-size: 11px;
+    color: #a1a1a1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.analysis-details {
+    margin-bottom: 20px;
+}
+
+.analysis-details h4 {
+    font-size: 14px;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.analysis-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.analysis-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #2a2a2a;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.analysis-metric span:first-child {
+    color: #a1a1a1;
+}
+
+.analysis-metric span:last-child {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.holders-section {
+    margin-bottom: 20px;
+}
+
+.holders-section h4 {
+    font-size: 14px;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.holders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.holder-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #2a2a2a;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.holder-address {
+    color: #a1a1a1;
+    font-family: 'Courier New', monospace;
+}
+
+.holder-balance {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.data-sources {
+    margin-bottom: 16px;
+}
+
+.data-sources h4 {
+    font-size: 14px;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.sources-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.source {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.source.available {
+    background: #4ade8020;
+    color: #4ade80;
+    border: 1px solid #4ade8040;
+}
+
+.source.unavailable {
+    background: #ef444420;
+    color: #ef4444;
+    border: 1px solid #ef444440;
+}
+
+.analysis-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 16px;
+    border-top: 1px solid #333;
+}
+
+.analysis-footer small {
+    font-size: 10px;
+    color: #666;
+}
+
+/* Error message styles for new display */
+.error-message {
+    padding: 16px;
+    background: #2a1a1a;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.error-message h3 {
+    color: #ef4444;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.error-message p {
+    color: #a1a1a1;
+    margin: 4px 0;
+    font-size: 12px;
+}
+
+/* Concentration display styles */
+.concentration-display {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+}
+
+.concentration-card {
+    background: linear-gradient(135deg, #ff9900, #cc7700);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 150px;
+    box-shadow: 0 2px 8px rgba(255, 153, 0, 0.2);
+}
+
+.concentration-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.concentration-label {
+    font-size: 12px;
+    color: #000000;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.concentration-subtext {
+    font-size: 10px;
+    color: #333333;
+    opacity: 0.8;
 } 
